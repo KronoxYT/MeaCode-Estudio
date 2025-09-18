@@ -18,10 +18,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Code, Construction, Terminal, GalleryVerticalEnd } from 'lucide-react';
+import { Sparkles, Code, Terminal, GalleryVerticalEnd } from 'lucide-react';
 import { aiPoweredIntelliSense } from '@/ai/flows/ai-powered-intellisense';
 import { Skeleton } from '../ui/skeleton';
-import { Input } from '../ui/input';
 
 type Language = 'javascript' | 'python' | 'html';
 
@@ -57,9 +56,7 @@ export function EditorPanel() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
-  const [transformLoading, setTransformLoading] = useState(false);
-  const [transformPrompt, setTransformPrompt] = useState('');
-
+  
   const handleLanguageChange = (value: Language) => {
     setLanguage(value);
     setCode(initialCode[value]);
@@ -84,18 +81,6 @@ export function EditorPanel() {
       setIsLoading(false);
     }
   };
-
-  const handleTransform = async () => {
-    setTransformLoading(true);
-    // In a real implementation, you would make an API call to a generative AI model
-    // to transform the code based on the prompt.
-    // For this example, we'll just simulate a delay and append a comment.
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    const transformationComment = `\n\n/* AI Transformation for: "${transformPrompt}" */\n`;
-    setCode(currentCode => currentCode + transformationComment);
-    setTransformPrompt('');
-    setTransformLoading(false);
-  };
   
   const addComponent = (componentName: string) => {
     const componentSnippet = `\n// TODO: Implement ${componentName} component\n`;
@@ -109,7 +94,6 @@ export function EditorPanel() {
           <TabsList className="bg-muted">
             <TabsTrigger value="editor">Editor</TabsTrigger>
             <TabsTrigger value="preview">Preview</TabsTrigger>
-            <TabsTrigger value="trae">TRAE</TabsTrigger>
             <TabsTrigger value="gallery">Component Gallery</TabsTrigger>
           </TabsList>
           <div className="flex items-center gap-2">
@@ -168,41 +152,6 @@ export function EditorPanel() {
               className="h-full w-full"
             />
           </div>
-        </TabsContent>
-         <TabsContent value="trae" className="flex-1 m-0 p-2 overflow-hidden">
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Sparkles className="text-primary" /> TRAE - All-in-One Context Engineer</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground">Describe your requirements. TRAE will autonomously orchestrate the tools to deliver a solution.</p>
-              <div className="space-y-2">
-                <Textarea
-                    value={transformPrompt}
-                    onChange={(e) => setTransformPrompt(e.target.value)}
-                    placeholder="e.g., 'Add a user authentication flow with a login page and a profile page.'"
-                    className="min-h-[120px] font-code"
-                    disabled={transformLoading}
-                />
-                <Button onClick={handleTransform} disabled={transformLoading || !transformPrompt.trim()} className="w-full">
-                    {transformLoading ? (
-                        <>
-                            <Sparkles className="mr-2 h-4 w-4 animate-spin" />
-                            Executing...
-                        </>
-                    ) : (
-                        'Engage TRAE'
-                    )}
-                </Button>
-              </div>
-              <div className="p-4 border rounded-lg bg-muted/50">
-                <h4 className="font-semibold mb-2">Monitoring</h4>
-                <p className='text-sm text-muted-foreground'>
-                  Real-time execution will be monitored here. For now, this is a placeholder for the "Extended View".
-                </p>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
         <TabsContent value="gallery" className="flex-1 m-0 p-2 overflow-hidden">
             <Card className="h-full">

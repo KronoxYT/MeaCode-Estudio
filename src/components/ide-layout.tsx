@@ -23,11 +23,13 @@ import SettingsPanel from './panels/settings-panel';
 import SourceControlPanel from './panels/source-control-panel';
 import { EditorPanel } from './panels/editor-panel';
 import { CodeCanvasLogo } from './code-canvas-logo';
+import { MeaCodePanel } from './panels/mea-code-panel';
 
 type Panel = 'files' | 'git' | 'chat' | 'settings';
 
 export function IdeLayout() {
   const [activePanel, setActivePanel] = useState<Panel | null>('files');
+  const [isMeaCodeActive, setIsMeaCodeActive] = useState(false);
 
   const togglePanel = (panel: Panel) => {
     setActivePanel(current => (current === panel ? null : panel));
@@ -47,14 +49,31 @@ export function IdeLayout() {
     settings: { icon: <Settings className="size-5" />, label: 'Settings' },
   };
 
+  if (isMeaCodeActive) {
+    return <MeaCodePanel onClose={() => setIsMeaCodeActive(false)} />;
+  }
+
   return (
     <TooltipProvider delayDuration={0}>
       <div className="flex h-screen w-full bg-muted/40 text-foreground overflow-hidden">
         <aside className="flex flex-col items-center justify-between gap-4 border-r bg-background p-2">
           <div className="flex flex-col items-center gap-4">
-            <div className="p-2">
-              <CodeCanvasLogo className="size-6" />
-            </div>
+             <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="p-2"
+                    onClick={() => setIsMeaCodeActive(true)}
+                    aria-label="Enter MeaCode Mode"
+                  >
+                    <CodeCanvasLogo className="size-6" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={5}>
+                  MeaCode (Modo Solo)
+                </TooltipContent>
+              </Tooltip>
             {Object.keys(panels).map(panelId => (
               <Tooltip key={panelId}>
                 <TooltipTrigger asChild>
