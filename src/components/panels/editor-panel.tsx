@@ -109,7 +109,7 @@ export function EditorPanel() {
           <TabsList className="bg-muted">
             <TabsTrigger value="editor">Editor</TabsTrigger>
             <TabsTrigger value="preview">Preview</TabsTrigger>
-            <TabsTrigger value="builder">Component Transformer</TabsTrigger>
+            <TabsTrigger value="trae">TRAE</TabsTrigger>
             <TabsTrigger value="gallery">Component Gallery</TabsTrigger>
           </TabsList>
           <div className="flex items-center gap-2">
@@ -169,35 +169,38 @@ export function EditorPanel() {
             />
           </div>
         </TabsContent>
-         <TabsContent value="builder" className="flex-1 m-0 p-2 overflow-hidden">
+         <TabsContent value="trae" className="flex-1 m-0 p-2 overflow-hidden">
           <Card className="h-full">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Construction/> Component Transformer (TRAE)</CardTitle>
+              <CardTitle className="flex items-center gap-2"><Sparkles className="text-primary" /> TRAE - All-in-One Context Engineer</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-muted-foreground">Describe the UI changes you want to make. The AI will transform your code.</p>
+              <p className="text-muted-foreground">Describe your requirements. TRAE will autonomously orchestrate the tools to deliver a solution.</p>
               <div className="space-y-2">
                 <Textarea
                     value={transformPrompt}
                     onChange={(e) => setTransformPrompt(e.target.value)}
-                    placeholder="e.g., 'Make the primary button bigger and change its color to blue.'"
-                    className="min-h-[100px]"
+                    placeholder="e.g., 'Add a user authentication flow with a login page and a profile page.'"
+                    className="min-h-[120px] font-code"
                     disabled={transformLoading}
                 />
                 <Button onClick={handleTransform} disabled={transformLoading || !transformPrompt.trim()} className="w-full">
                     {transformLoading ? (
                         <>
                             <Sparkles className="mr-2 h-4 w-4 animate-spin" />
-                            Transforming...
+                            Executing...
                         </>
                     ) : (
-                        'Transform Code'
+                        'Engage TRAE'
                     )}
                 </Button>
               </div>
-              <p className='text-sm text-muted-foreground'>
-                Select a component in your code and describe how you want to change it. The AI will attempt to apply the transformation.
-              </p>
+              <div className="p-4 border rounded-lg bg-muted/50">
+                <h4 className="font-semibold mb-2">Monitoring</h4>
+                <p className='text-sm text-muted-foreground'>
+                  Real-time execution will be monitored here. For now, this is a placeholder for the "Extended View".
+                </p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
