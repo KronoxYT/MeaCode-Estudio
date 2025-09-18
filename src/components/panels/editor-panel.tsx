@@ -18,9 +18,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Code, Construction, Terminal } from 'lucide-react';
+import { Sparkles, Code, Construction, Terminal, GalleryVerticalEnd } from 'lucide-react';
 import { aiPoweredIntelliSense } from '@/ai/flows/ai-powered-intellisense';
 import { Skeleton } from '../ui/skeleton';
+import { Input } from '../ui/input';
 
 type Language = 'javascript' | 'python' | 'html';
 
@@ -43,25 +44,12 @@ const initialCode: Record<Language, string> = {
 </html>`,
 };
 
-const codeSnippets: Record<Language, { name: string; code: string }[]> = {
-  javascript: [
-    {
-      name: 'Function Declaration',
-      code: 'function functionName(params) {\n  // code\n}',
-    },
-    { name: 'If/Else Statement', code: 'if (condition) {\n  // code\n} else {\n  // code\n}' },
-    { name: 'For Loop', code: 'for (let i = 0; i < array.length; i++) {\n  // code\n}' },
-  ],
-  python: [
-    { name: 'Function Definition', code: 'def function_name(params):\n  # code\n  pass' },
-    { name: 'If/Else Statement', code: 'if condition:\n  # code\nelse:\n  # code' },
-    { name: 'For Loop', code: 'for item in iterable:\n  # code' },
-  ],
-  html: [
-    { name: 'Basic Structure', code: '<!DOCTYPE html>\n<html>\n<head>\n  <title>Page Title</title>\n</head>\n<body>\n  <h1>My First Heading</h1>\n  <p>My first paragraph.</p>\n</body>\n</html>' },
-    { name: 'Image Tag', code: '<img src="url" alt="description" width="100" height="100">' },
-  ],
-};
+const components = [
+    { name: 'Button', description: 'A clickable button.' },
+    { name: 'Card', description: 'A container for content.' },
+    { name: 'Input', description: 'A text input field.' },
+    { name: 'Tabs', description: 'A set of tabs.' },
+];
 
 export function EditorPanel() {
   const [language, setLanguage] = useState<Language>('javascript');
@@ -69,6 +57,8 @@ export function EditorPanel() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [transformLoading, setTransformLoading] = useState(false);
+  const [transformPrompt, setTransformPrompt] = useState('');
 
   const handleLanguageChange = (value: Language) => {
     setLanguage(value);
@@ -94,9 +84,22 @@ export function EditorPanel() {
       setIsLoading(false);
     }
   };
+
+  const handleTransform = async () => {
+    setTransformLoading(true);
+    // In a real implementation, you would make an API call to a generative AI model
+    // to transform the code based on the prompt.
+    // For this example, we'll just simulate a delay and append a comment.
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    const transformationComment = `\n\n/* AI Transformation for: "${transformPrompt}" */\n`;
+    setCode(currentCode => currentCode + transformationComment);
+    setTransformPrompt('');
+    setTransformLoading(false);
+  };
   
-  const addSnippet = (snippet: string) => {
-    setCode(currentCode => currentCode + '\n' + snippet);
+  const addComponent = (componentName: string) => {
+    const componentSnippet = `\n// TODO: Implement ${componentName} component\n`;
+    setCode(currentCode => currentCode + componentSnippet);
   };
 
   return (
@@ -105,8 +108,9 @@ export function EditorPanel() {
         <div className="flex items-center justify-between border-b bg-background p-2">
           <TabsList className="bg-muted">
             <TabsTrigger value="editor">Editor</TabsTrigger>
-            <TabsTrigger value="preview">Real-time Preview</TabsTrigger>
-            <TabsTrigger value="builder">Code Builder</TabsTrigger>
+            <TabsTrigger value="preview">Preview</TabsTrigger>
+            <TabsTrigger value="builder">Component Transformer</TabsTrigger>
+            <TabsTrigger value="gallery">Component Gallery</TabsTrigger>
           </TabsList>
           <div className="flex items-center gap-2">
             <Select value={language} onValueChange={handleLanguageChange}>
@@ -168,20 +172,52 @@ export function EditorPanel() {
          <TabsContent value="builder" className="flex-1 m-0 p-2 overflow-hidden">
           <Card className="h-full">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Construction/> Code Builder</CardTitle>
+              <CardTitle className="flex items-center gap-2"><Construction/> Component Transformer (TRAE)</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">Click to add snippets to your code.</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {codeSnippets[language].map(snippet => (
-                  <Button key={snippet.name} variant="outline" onClick={() => addSnippet(snippet.code)} className="h-auto p-4 flex flex-col items-start text-left">
-                    <span className="font-semibold">{snippet.name}</span>
-                    <pre className="mt-2 text-xs font-code text-muted-foreground bg-muted p-2 rounded-md w-full whitespace-pre-wrap">{snippet.code}</pre>
-                  </Button>
-                ))}
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">Describe the UI changes you want to make. The AI will transform your code.</p>
+              <div className="space-y-2">
+                <Textarea
+                    value={transformPrompt}
+                    onChange={(e) => setTransformPrompt(e.target.value)}
+                    placeholder="e.g., 'Make the primary button bigger and change its color to blue.'"
+                    className="min-h-[100px]"
+                    disabled={transformLoading}
+                />
+                <Button onClick={handleTransform} disabled={transformLoading || !transformPrompt.trim()} className="w-full">
+                    {transformLoading ? (
+                        <>
+                            <Sparkles className="mr-2 h-4 w-4 animate-spin" />
+                            Transforming...
+                        </>
+                    ) : (
+                        'Transform Code'
+                    )}
+                </Button>
               </div>
+              <p className='text-sm text-muted-foreground'>
+                Select a component in your code and describe how you want to change it. The AI will attempt to apply the transformation.
+              </p>
             </CardContent>
           </Card>
+        </TabsContent>
+        <TabsContent value="gallery" className="flex-1 m-0 p-2 overflow-hidden">
+            <Card className="h-full">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><GalleryVerticalEnd /> Component Gallery</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground mb-4">Click to add a new component to your code.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {components.map(component => (
+                        <Button key={component.name} variant="outline" onClick={() => addComponent(component.name)} className="h-auto p-4 flex flex-col items-start text-left">
+                            <span className="font-semibold">{component.name}</span>
+                            <p className="mt-1 text-xs text-muted-foreground">{component.description}</p>
+                        </Button>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
         </TabsContent>
       </Tabs>
     </div>
