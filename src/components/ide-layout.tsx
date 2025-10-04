@@ -83,7 +83,7 @@ export function IdeLayout() {
   }
 
   const renderSidebarContent = () => (
-    <div className="flex flex-col items-center justify-between h-full bg-background p-2 border-r">
+    <div className="flex flex-col items-center justify-between h-full bg-background p-2">
       <div className="flex flex-col items-center gap-2">
         <Tooltip>
           <TooltipTrigger asChild>
@@ -157,7 +157,7 @@ export function IdeLayout() {
                 <Menu className="size-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-80">
+            <SheetContent side="left" className="p-0 w-[250px]">
               <SheetHeader>
                 <SheetTitle className="sr-only">Main Menu</SheetTitle>
               </SheetHeader>
