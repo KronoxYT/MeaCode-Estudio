@@ -13,8 +13,8 @@ export function MeaCoreLogo(props: SVGProps<SVGSVGElement>) {
     >
       <defs>
         <linearGradient id="logo-gradient" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="hsl(var(--primary))" />
-          <stop offset="100%" stopColor="hsl(var(--ring))" />
+          <stop offset="0%" stopColor="#64B5F6" />
+          <stop offset="100%" stopColor="#9575CD" />
         </linearGradient>
       </defs>
       <path
@@ -23,14 +23,14 @@ export function MeaCoreLogo(props: SVGProps<SVGSVGElement>) {
       />
       <path
         d="M9.5 8.5L6.5 11.5L9.5 14.5"
-        stroke="hsl(var(--primary-foreground))"
+        stroke="white"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
         d="M14.5 8.5L17.5 11.5L14.5 14.5"
-        stroke="hsl(var(--primary-foreground))"
+        stroke="white"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
