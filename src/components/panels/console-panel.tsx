@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Play, Trash2, Terminal } from 'lucide-react';
+import { Play, Trash2, Terminal, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ConsoleLog {
