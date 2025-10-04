@@ -6,6 +6,8 @@ import {
   MessageSquare,
   Settings,
   File as FileIcon,
+  PanelLeft,
+  GitBranch,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -15,6 +17,14 @@ import { MeaCodePanel } from './panels/mea-code-panel';
 import dynamic from 'next/dynamic';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from './ui/skeleton';
+import { Button } from './ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from './ui/sheet';
 
 const AiChatPanel = dynamic(() => import('./panels/ai-chat-panel'), {
   loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
@@ -22,16 +32,20 @@ const AiChatPanel = dynamic(() => import('./panels/ai-chat-panel'), {
 const FileExplorerPanel = dynamic(() => import('./panels/file-explorer-panel'), {
   loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
 });
+const SourceControlPanel = dynamic(() => import('./panels/source-control-panel'), {
+    loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
+});
 const SettingsPanel = dynamic(() => import('./panels/settings-panel'), {
   loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
 });
 
-type PanelId = 'editor' | 'chat' | 'files' | 'settings';
+type PanelId = 'editor' | 'chat' | 'files' | 'settings' | 'source-control';
 
 const panels: { id: PanelId; icon: React.ElementType; label: string }[] = [
   { id: 'editor', icon: FileIcon, label: 'Editor' },
   { id: 'chat', icon: MessageSquare, label: 'AI Chat' },
-  { id: 'files', icon: FileCode, label: 'File Explorer' },
+  { id: 'files', icon: FileCode, label: 'Explorer' },
+  { id: 'source-control', icon: GitBranch, label: 'Source' },
   { id: 'settings', icon: Settings, label: 'Settings' },
 ];
 
@@ -43,7 +57,7 @@ export function IdeLayout() {
   if (isMeaCodeActive) {
     return <MeaCodePanel onClose={() => setIsMeaCodeActive(false)} />;
   }
-  
+
   // Prevents hydration mismatch by showing a loader until client-side check is complete
   if (isMobile === undefined) {
     return (
@@ -58,33 +72,54 @@ export function IdeLayout() {
     return (
       <div className="flex h-screen w-full flex-col bg-muted/40">
         <header className="flex h-14 items-center justify-between border-b bg-background px-4">
-           <button onClick={() => setIsMeaCodeActive(true)} className="p-2">
-              <CodeCanvasLogo className="size-6" />
-           </button>
-           <h1 className="text-lg font-semibold">CodeCanvas AI</h1>
-           <div></div>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <PanelLeft className="size-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[250px] p-0">
+               <SheetHeader className="border-b p-4 text-left">
+                    <SheetTitle className="sr-only">Menu</SheetTitle>
+                    <h2 className="text-lg font-semibold">CodeCanvas AI</h2>
+                </SheetHeader>
+                <div className="p-4">
+                  <button onClick={() => setIsMeaCodeActive(true)} className="flex items-center gap-2 rounded-md p-2 text-left text-sm font-medium w-full hover:bg-muted">
+                    <CodeCanvasLogo className="size-5" />
+                    <span>Engage MeaCode</span>
+                  </button>
+                </div>
+            </SheetContent>
+          </Sheet>
+          <h1 className="text-lg font-semibold">CodeCanvas AI</h1>
+          <button onClick={() => setIsMeaCodeActive(true)} className="p-2">
+            <CodeCanvasLogo className="size-6" />
+          </button>
         </header>
         <main className="flex-1 overflow-hidden">
-          <TabsContent value="editor" className={cn("h-full", activeTab !== 'editor' && "hidden")}>
-             <EditorPanel />
-          </TabsContent>
-          <TabsContent value="chat" className={cn("h-full", activeTab !== 'chat' && "hidden")}>
-             <AiChatPanel />
-          </TabsContent>
-          <TabsContent value="files" className={cn("h-full", activeTab !== 'files' && "hidden")}>
-            <FileExplorerPanel />
-          </TabsContent>
-          <TabsContent value="settings" className={cn("h-full", activeTab !== 'settings' && "hidden")}>
-             <SettingsPanel />
-          </TabsContent>
-        </main>
-        <footer className="border-t bg-background">
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as PanelId)} className="w-full">
-            <TabsList className="grid h-full w-full grid-cols-4 rounded-none">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PanelId)} className="h-full w-full flex flex-col">
+            <div className="flex-1 overflow-y-auto">
+              <TabsContent value="editor" className={cn("h-full m-0", activeTab !== 'editor' && "hidden")}>
+                <EditorPanel />
+              </TabsContent>
+              <TabsContent value="chat" className={cn("h-full m-0", activeTab !== 'chat' && "hidden")}>
+                <AiChatPanel />
+              </TabsContent>
+              <TabsContent value="files" className={cn("h-full m-0", activeTab !== 'files' && "hidden")}>
+                <FileExplorerPanel />
+              </TabsContent>
+              <TabsContent value="source-control" className={cn("h-full m-0", activeTab !== 'source-control' && "hidden")}>
+                <SourceControlPanel />
+              </TabsContent>
+              <TabsContent value="settings" className={cn("h-full m-0", activeTab !== 'settings' && "hidden")}>
+                <SettingsPanel />
+              </TabsContent>
+            </div>
+            <TabsList className="grid h-16 w-full grid-cols-5 rounded-none border-t">
               {panels.map(panel => {
                 const Icon = panel.icon;
                 return (
-                  <TabsTrigger key={panel.id} value={panel.id} className="flex-col gap-1 py-2 h-auto data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+                  <TabsTrigger key={panel.id} value={panel.id} className="flex-col gap-1 py-2 h-full data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-none">
                     <Icon className="size-5" />
                     <span className="text-xs">{panel.label}</span>
                   </TabsTrigger>
@@ -92,48 +127,59 @@ export function IdeLayout() {
               })}
             </TabsList>
           </Tabs>
-        </footer>
+        </main>
       </div>
     );
   }
-  
+
   // Desktop Layout
+  const renderSidebarContent = () => (
+      <div className="flex flex-col items-center justify-between h-full bg-background p-2">
+          <div className="flex flex-col items-center gap-4">
+            <button onClick={() => setIsMeaCodeActive(true)} className="p-2">
+              <CodeCanvasLogo className="size-6" />
+            </button>
+            {panels.map(panel => {
+                const Icon = panel.icon;
+                return (
+                  <button
+                    key={panel.id}
+                    onClick={() => setActiveTab(activeTab === panel.id ? 'editor' : panel.id)}
+                    className={cn(
+                      'flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-primary/10 hover:text-primary',
+                      activeTab === panel.id ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                    )}
+                  >
+                    <Icon className="size-5" />
+                  </button>
+                )
+            })}
+          </div>
+      </div>
+  );
+
   return (
     <div className="flex h-screen w-full bg-background">
-        <aside className="flex flex-col items-center justify-between gap-4 border-r bg-muted/40 p-2">
-            <div className="flex flex-col items-center gap-4">
-              <button onClick={() => setIsMeaCodeActive(true)} className="p-2">
-                <CodeCanvasLogo className="size-6" />
-              </button>
-              {panels.filter(p => p.id !== 'editor').map(panel => {
-                  const Icon = panel.icon;
-                  return (
-                    <button
-                      key={panel.id}
-                      onClick={() => setActiveTab(activeTab === panel.id ? 'editor' : panel.id)}
-                      className={cn(
-                        'flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-primary/10 hover:text-primary',
-                        activeTab === panel.id && 'bg-primary text-primary-foreground'
-                      )}
-                    >
-                      <Icon className="size-5" />
-                    </button>
-                  )
-              })}
+      <aside className="flex flex-col items-center justify-between gap-4 border-r bg-background p-2">
+          {renderSidebarContent()}
+      </aside>
+
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PanelId)} className="flex-1 flex">
+          <div className={cn('bg-muted/40 transition-all duration-300 ease-in-out', activeTab !== 'editor' ? 'w-[320px]' : 'w-0')}>
+            <div className="h-full w-full overflow-y-auto border-r">
+                <TabsContent value="files"><FileExplorerPanel /></TabsContent>
+                <TabsContent value="chat"><AiChatPanel /></TabsContent>
+                <TabsContent value="source-control"><SourceControlPanel /></TabsContent>
+                <TabsContent value="settings"><SettingsPanel /></TabsContent>
             </div>
-        </aside>
-
-        <div className={cn('bg-muted/40 transition-all duration-300 ease-in-out', activeTab !== 'editor' ? 'w-[320px]' : 'w-0')}>
-          <div className="h-full w-full overflow-y-auto border-r">
-              {activeTab === 'files' && <FileExplorerPanel />}
-              {activeTab === 'chat' && <AiChatPanel />}
-              {activeTab === 'settings' && <SettingsPanel />}
           </div>
-        </div>
 
-        <main className="flex-1 flex flex-col min-w-0">
-          <EditorPanel />
-        </main>
-      </div>
+          <main className="flex-1 flex flex-col min-w-0">
+             <TabsContent value="editor" className="h-full m-0">
+                <EditorPanel />
+             </TabsContent>
+          </main>
+      </Tabs>
+    </div>
   );
 }
