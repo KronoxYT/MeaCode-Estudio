@@ -38,55 +38,15 @@ interface EditorContextType {
 
 const EditorContext = createContext<EditorContextType | undefined>(undefined);
 
-const initialCode: Record<Language, string> = {
-  javascript: `// Press 'Run' in the console tab to see the output!
-console.log('Hello, CodeCanvas AI!');
+const defaultCode = `// Welcome to CodeCanvas AI!
+// Press Cmd+K to open the command palette.
 
-function calculateSum(a, b) {
-  // Intentionally introduce an error:
-  consele.log('This will cause a reference error.');
-  return a + b;
-}
-
-const user = { name: "Alex", role: "Developer" };
-console.warn("This is a warning message.");
-console.info("User object:", user);
-
-calculateSum(5, 10);
-`,
-  python: `def greet(name):
-    print(f"Hello, {name}")
-
-greet("CodeCanvas AI")`,
-  html: `<!DOCTYPE html>
-<html>
-<head>
-  <title>My Page</title>
-  <style>
-    body { font-family: sans-serif; background-color: #f0f0f0; color: #111; }
-    h1 { color: hsl(var(--primary)); }
-    button {
-        padding: 10px 15px;
-        border: none;
-        background-color: hsl(var(--primary));
-        color: hsl(var(--primary-foreground));
-        border-radius: 5px;
-        cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-  <h1>Welcome to CodeCanvas AI</h1>
-  <p>This is a real-time preview!</p>
-  <button onclick="alert('Button clicked!')">Click Me</button>
-</body>
-</html>`,
-};
-
+console.log("Hello, World!");
+`;
 
 export function EditorProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('javascript');
-  const [code, setCode] = useState(initialCode[language]);
+  const [language, setLanguage] = useState<Language>('javascript');
+  const [code, setCode] = useState(defaultCode);
   const [fileName, setFileName] = useState('script.js');
   const [consoleLogs, setConsoleLogs] = useState<ConsoleLog[]>([]);
   const [previewError, setPreviewError] = useState<string | null>(null);
@@ -100,14 +60,6 @@ export function EditorProvider({ children }: { children: ReactNode }) {
   const clearConsoleLogs = useCallback(() => {
     setConsoleLogs([]);
   }, []);
-
-  const setLanguage = useCallback((lang: Language) => {
-    setLanguageState(lang);
-    setCode(initialCode[lang]);
-    const fileNames = { javascript: 'script.js', python: 'main.py', html: 'index.html'};
-    setFileName(fileNames[lang]);
-  }, []);
-
 
   // Generar contexto completo para la IA
   const getContextForAI = useCallback(() => {

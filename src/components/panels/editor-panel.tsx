@@ -8,13 +8,6 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -104,15 +97,10 @@ function AiIntellisensePanel() {
 }
 
 export function EditorPanel() {
-  const { code, setCode, language, setLanguage, setFileName } = useEditor();
+  const { code, setCode, language } = useEditor();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const isMobile = useIsMobile();
   const { theme } = useTheme();
-
-  
-  const handleLanguageChange = (value: 'javascript' | 'python' | 'html') => {
-    setLanguage(value);
-  };
   
   const handleEditorDidMount = (editorInstance: editor.IStandaloneCodeEditor) => {
     editorRef.current = editorInstance;
@@ -223,18 +211,6 @@ export function EditorPanel() {
             <TabsTrigger value="preview"><Eye size={14}/></TabsTrigger>
             <TabsTrigger value="gallery"><GalleryVerticalEnd size={14}/></TabsTrigger>
           </TabsList>
-          <div className="flex items-center gap-2">
-            <Select value={language} onValueChange={(lang) => handleLanguageChange(lang as 'javascript' | 'python' | 'html')}>
-              <SelectTrigger className="w-[150px] h-9">
-                <SelectValue placeholder="Language" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="javascript">JavaScript</SelectItem>
-                <SelectItem value="python">Python</SelectItem>
-                <SelectItem value="html">HTML</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
         <TabsContent value="editor" className="flex-1 m-0 p-2 overflow-hidden flex flex-col">
           <div className={cn("flex gap-2 flex-1 min-h-0", isMobile ? "flex-col" : "flex-row")}>
