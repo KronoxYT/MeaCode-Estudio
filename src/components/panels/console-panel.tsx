@@ -1,26 +1,19 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Play, Trash2, Terminal, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useEditor, type ConsoleLog } from '@/contexts/editor-context';
 
-interface ConsoleLog {
-  id: string;
-  type: 'log' | 'error' | 'warn' | 'info';
-  content: string[];
-  timestamp: Date;
-}
 
 interface ConsolePanelProps {
-  code: string;
-  language: 'javascript' | 'python' | 'html';
   className?: string;
 }
 
-export function ConsolePanel({ code, language, className }: ConsolePanelProps) {
-  const [logs, setLogs] = useState<ConsoleLog[]>([]);
+export function ConsolePanel({ className }: ConsolePanelProps) {
+  const { code, language, consoleLogs, addConsoleLog, clearConsoleLogs } = useEditor();
   const [isRunning, setIsRunning] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -32,59 +25,39 @@ export function ConsolePanel({ code, language, className }: ConsolePanelProps) {
         viewport.scrollTop = viewport.scrollHeight;
       }
     }
-  }, [logs]);
+  }, [consoleLogs]);
 
-  const addLog = (type: ConsoleLog['type'], ...args: any[]) => {
-    const newLog: ConsoleLog = {
-      id: `${Date.now()}-${Math.random()}`,
-      type,
-      content: args.map(arg => {
-        if (typeof arg === 'object' && arg !== null) {
-          try {
-            return JSON.stringify(arg, null, 2);
-          } catch {
-            return String(arg);
-          }
-        }
-        return String(arg);
-      }),
-      timestamp: new Date(),
-    };
-    
-    setLogs(prev => [...prev, newLog]);
-  };
-
-  const clearConsole = () => {
-    setLogs([]);
-  };
 
   const executeJavaScript = () => {
     if (language !== 'javascript') {
-      clearConsole();
-      addLog('warn', 'Execution is only available for JavaScript for now.');
+      const logEntry: ConsoleLog = {
+        id: `${Date.now()}`,
+        type: 'warn',
+        content: ['Execution is only available for JavaScript for now.'],
+        timestamp: new Date()
+      };
+      addConsoleLog(logEntry);
       return;
     }
 
     setIsRunning(true);
-    clearConsole();
+    clearConsoleLogs();
 
     setTimeout(() => {
         try {
-          // Crear console personalizado
           const customConsole = {
-            log: (...args: any[]) => addLog('log', ...args),
-            error: (...args: any[]) => addLog('error', ...args),
-            warn: (...args: any[]) => addLog('warn', ...args),
-            info: (...args: any[]) => addLog('info', ...args),
+            log: (...args: any[]) => addConsoleLog({ id: `${Date.now()}-${Math.random()}`, type: 'log', content: args.map(String), timestamp: new Date() }),
+            error: (...args: any[]) => addConsoleLog({ id: `${Date.now()}-${Math.random()}`, type: 'error', content: args.map(String), timestamp: new Date() }),
+            warn: (...args: any[]) => addConsoleLog({ id: `${Date.now()}-${Math.random()}`, type: 'warn', content: args.map(String), timestamp: new Date() }),
+            info: (...args: any[]) => addConsoleLog({ id: `${Date.now()}-${Math.random()}`, type: 'info', content: args.map(String), timestamp: new Date() }),
           };
 
-          // Ejecutar código en un contexto aislado
           const func = new Function('console', code);
           func(customConsole);
 
-          addLog('info', '✓ Code executed successfully');
+          addConsoleLog({ id: `${Date.now()}`, type: 'info', content: ['✓ Code executed successfully'], timestamp: new Date() });
         } catch (error: any) {
-          addLog('error', `❌ Execution Error: ${error.message}`);
+          addConsoleLog({ id: `${Date.now()}`, type: 'error', content: [`❌ Execution Error: ${error.message}`], timestamp: new Date() });
         } finally {
           setIsRunning(false);
         }
@@ -124,9 +97,9 @@ export function ConsolePanel({ code, language, className }: ConsolePanelProps) {
         <div className="flex items-center gap-2">
           <Terminal className="h-4 w-4" />
           <span className="text-sm font-medium">Console</span>
-          {logs.length > 0 && (
+          {consoleLogs.length > 0 && (
             <span className="text-xs text-muted-foreground">
-              ({logs.length})
+              ({consoleLogs.length})
             </span>
           )}
         </div>
@@ -135,8 +108,8 @@ export function ConsolePanel({ code, language, className }: ConsolePanelProps) {
           <Button
             size="sm"
             variant="ghost"
-            onClick={clearConsole}
-            disabled={logs.length === 0}
+            onClick={clearConsoleLogs}
+            disabled={consoleLogs.length === 0}
             className="h-8"
             title="Clear console"
           >
@@ -162,7 +135,7 @@ export function ConsolePanel({ code, language, className }: ConsolePanelProps) {
       {/* Console Output */}
       <ScrollArea className="flex-1" ref={scrollRef}>
         <div className="p-3 font-mono text-sm space-y-1">
-          {logs.length === 0 ? (
+          {consoleLogs.length === 0 ? (
             <div className="text-muted-foreground text-center pt-16">
               <Terminal className="h-10 w-10 mx-auto mb-2 opacity-50" />
               <p className="text-xs">
@@ -170,7 +143,7 @@ export function ConsolePanel({ code, language, className }: ConsolePanelProps) {
               </p>
             </div>
           ) : (
-            logs.map((log) => (
+            consoleLogs.map((log) => (
               <div
                 key={log.id}
                 className={cn(

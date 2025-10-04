@@ -19,6 +19,7 @@ const AIPoweredIntelliSenseInputSchema = z.object({
   programmingLanguage: z
     .string()
     .describe('The programming language of the code snippet.'),
+  context: z.string().optional().describe('A JSON string representing the full IDE context.')
 });
 export type AIPoweredIntelliSenseInput = z.infer<
   typeof AIPoweredIntelliSenseInputSchema
@@ -53,9 +54,14 @@ const aiPoweredIntelliSensePrompt = ai.definePrompt({
       \`\`\`{{{programmingLanguage}}}
       {{{codeSnippet}}}
       \`\`\`
+      
+      {{#if context}}
+      Full IDE Context:
+      {{{context}}}
+      {{/if}}
 
-      Provide completion suggestions and detect any errors in the code snippet.  If there are no errors, the errorDetection output should be an empty string.
-      Completion Suggestions:`, // No need to end with triple backticks, the model will generate them if they're needed
+      Provide completion suggestions and detect any errors in the code snippet. If there are no errors, the errorDetection output should be an empty string.
+      Completion Suggestions:`,
 });
 
 const aiPoweredIntelliSenseFlow = ai.defineFlow(

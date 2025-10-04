@@ -13,6 +13,7 @@ import {z} from 'genkit';
 
 const AIChatAssistantInputSchema = z.object({
   query: z.string().describe('The coding question or request from the user.'),
+  context: z.string().describe('A JSON string containing the full context of the IDE (editor, console, etc.).')
 });
 export type AIChatAssistantInput = z.infer<typeof AIChatAssistantInputSchema>;
 
@@ -29,10 +30,13 @@ const prompt = ai.definePrompt({
   name: 'aiChatAssistantPrompt',
   input: {schema: AIChatAssistantInputSchema},
   output: {schema: AIChatAssistantOutputSchema},
-  prompt: `You are an AI chat assistant integrated within an IDE.
-  Your purpose is to answer coding questions and generate code snippets to assist developers.
-  Respond to the following query:
-  {{query}}`,
+  prompt: `You are an expert programming assistant integrated inside CodeCanvas AI IDE.
+
+  Here is the full context of the user's current environment:
+  {{{context}}}
+
+  Based on this context, respond to the following user query. Be concise and helpful. If you suggest code, use markdown code blocks.
+  User Query: {{query}}`,
 });
 
 const aiChatAssistantFlow = ai.defineFlow(

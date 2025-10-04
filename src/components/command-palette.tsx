@@ -22,17 +22,18 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command';
-import { MeaCoreLogo } from './code-canvas-logo';
+import { DialogTitle } from '@/components/ui/dialog';
+import { CodeCanvasLogo } from './code-canvas-logo';
 import { PanelId } from './ide-layout';
 
 interface CommandPaletteProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   setActiveTab: (tab: PanelId) => void;
-  setIsMeaCodeActive: (active: boolean) => void;
+  setIsCodeCanvasActive: (active: boolean) => void;
 }
 
-export function CommandPalette({ open, setOpen, setActiveTab, setIsMeaCodeActive }: CommandPaletteProps) {
+export function CommandPalette({ open, setOpen, setActiveTab, setIsCodeCanvasActive }: CommandPaletteProps) {
   const { setTheme } = useTheme();
 
   React.useEffect(() => {
@@ -54,6 +55,7 @@ export function CommandPalette({ open, setOpen, setActiveTab, setIsMeaCodeActive
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
+        <DialogTitle className="sr-only">Command Palette</DialogTitle>
       <CommandInput placeholder="Type a command or search..." />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
@@ -74,9 +76,9 @@ export function CommandPalette({ open, setOpen, setActiveTab, setIsMeaCodeActive
             <GitBranch className="mr-2 h-4 w-4" />
             <span>Source Control</span>
           </CommandItem>
-           <CommandItem onSelect={() => runCommand(() => setIsMeaCodeActive(true))}>
-            <MeaCoreLogo className="mr-2 h-4 w-4" />
-            <span>Engage MeaCode</span>
+           <CommandItem onSelect={() => runCommand(() => setIsCodeCanvasActive(true))}>
+            <CodeCanvasLogo className="mr-2 h-4 w-4" />
+            <span>Engage CodeCanvas AI</span>
           </CommandItem>
         </CommandGroup>
         <CommandSeparator />

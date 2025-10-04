@@ -12,8 +12,8 @@ import {
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { EditorPanel } from './panels/editor-panel';
-import { MeaCoreLogo } from './code-canvas-logo';
-import { MeaCodePanel } from './panels/mea-code-panel';
+import { CodeCanvasLogo } from './code-canvas-logo';
+import { CodeCanvasPanel } from './panels/code-canvas-panel';
 import dynamic from 'next/dynamic';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from './ui/skeleton';
@@ -27,21 +27,21 @@ import {
 } from './ui/sheet';
 import { CommandPalette } from './command-palette';
 
-const AiChatPanel = dynamic(() => import('./panels/ai-chat-panel'), {
-  loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
+const AiChatPanel = dynamic(() => import('./panels/ai-chat-panel').then(m => m.AIChatPanel), {
   ssr: false,
+  loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
 });
 const FileExplorerPanel = dynamic(() => import('./panels/file-explorer-panel'), {
-  loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
   ssr: false,
+  loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
 });
 const SourceControlPanel = dynamic(() => import('./panels/source-control-panel'), {
-    loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
-    ssr: false,
+  ssr: false,
+  loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
 });
 const SettingsPanel = dynamic(() => import('./panels/settings-panel'), {
-  loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
   ssr: false,
+  loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
 });
 
 export type PanelId = 'editor' | 'chat' | 'files' | 'settings' | 'source-control';
@@ -55,20 +55,20 @@ export const panels: { id: PanelId; icon: React.ElementType; label: string }[] =
 ];
 
 export function IdeLayout() {
-  const [isMeaCodeActive, setIsMeaCodeActive] = useState(false);
+  const [isCodeCanvasActive, setIsCodeCanvasActive] = useState(false);
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState<PanelId>('editor');
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
-  if (isMeaCodeActive) {
-    return <MeaCodePanel onClose={() => setIsMeaCodeActive(false)} />;
+  if (isCodeCanvasActive) {
+    return <CodeCanvasPanel onClose={() => setIsCodeCanvasActive(false)} />;
   }
 
   // Prevents hydration mismatch by showing a loader until client-side check is complete
   if (isMobile === undefined) {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center bg-background">
-        <MeaCoreLogo className="size-12 animate-pulse" />
+        <CodeCanvasLogo className="size-12 animate-pulse" />
       </div>
     );
   }
@@ -81,7 +81,7 @@ export function IdeLayout() {
             open={commandPaletteOpen}
             setOpen={setCommandPaletteOpen}
             setActiveTab={setActiveTab}
-            setIsMeaCodeActive={setIsMeaCodeActive}
+            setIsCodeCanvasActive={setIsCodeCanvasActive}
         />
         <header className="flex h-14 items-center justify-between border-b bg-background px-4">
           <Sheet>
@@ -92,19 +92,19 @@ export function IdeLayout() {
             </SheetTrigger>
             <SheetContent side="left" className="w-[250px] p-0">
                <SheetHeader className="border-b p-4 text-left">
-                    <SheetTitle>MeaCore Studio</SheetTitle>
+                    <SheetTitle>CodeCanvas AI</SheetTitle>
                 </SheetHeader>
                 <div className="p-4">
-                  <button onClick={() => setIsMeaCodeActive(true)} className="flex items-center gap-2 rounded-md p-2 text-left text-sm font-medium w-full hover:bg-muted">
-                    <MeaCoreLogo className="size-5" />
-                    <span>Engage MeaCode</span>
+                  <button onClick={() => setIsCodeCanvasActive(true)} className="flex items-center gap-2 rounded-md p-2 text-left text-sm font-medium w-full hover:bg-muted">
+                    <CodeCanvasLogo className="size-5" />
+                    <span>Engage CodeCanvas AI</span>
                   </button>
                 </div>
             </SheetContent>
           </Sheet>
-          <h1 className="text-lg font-semibold">MeaCore Studio</h1>
+          <h1 className="text-lg font-semibold">CodeCanvas AI</h1>
           <button onClick={() => setCommandPaletteOpen(true)} className="p-2">
-            <MeaCoreLogo className="size-6" />
+            <CodeCanvasLogo className="size-6" />
           </button>
         </header>
         <main className="flex-1 overflow-hidden">
@@ -148,7 +148,7 @@ export function IdeLayout() {
       <div className="flex flex-col items-center justify-between h-full py-2">
           <div className="flex flex-col items-center gap-4">
             <button onClick={() => setCommandPaletteOpen(true)} className="p-2">
-              <MeaCoreLogo className="size-6" />
+              <CodeCanvasLogo className="size-6" />
             </button>
             {panels.map(panel => {
                 const Icon = panel.icon;
@@ -175,7 +175,7 @@ export function IdeLayout() {
         open={commandPaletteOpen}
         setOpen={setCommandPaletteOpen}
         setActiveTab={setActiveTab}
-        setIsMeaCodeActive={setIsMeaCodeActive}
+        setIsCodeCanvasActive={setIsCodeCanvasActive}
       />
       <aside className="flex flex-col items-center justify-between gap-4 border-r bg-background p-2">
           {renderSidebarContent()}

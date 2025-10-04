@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useTheme } from 'next-themes';
 import {
@@ -29,6 +29,7 @@ import type { editor } from 'monaco-editor';
 import { KeyboardBar } from '../editor/keyboard-bar';
 import { ConsolePanel } from './console-panel';
 import { PreviewPanel } from './preview-panel';
+import { useEditor } from '@/contexts/editor-context';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
@@ -38,36 +39,6 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
 });
 
 
-type Language = 'javascript' | 'python' | 'html';
-
-const initialCode: Record<Language, string> = {
-  javascript: `// Press 'Run' in the console tab to see the output!
-console.log('Hello, MeaCore Studio!');
-
-const user = { name: "Alex", role: "Developer" };
-console.warn("This is a warning message.");
-console.error("This is an error message.");
-console.info("User object:", user);`,
-  python: `def greet(name):
-    print(f"Hello, {name}")
-
-greet("MeaCore Studio")`,
-  html: `<!DOCTYPE html>
-<html>
-<head>
-  <title>My Page</title>
-  <style>
-    body { font-family: sans-serif; background-color: #f0f0f0; }
-    h1 { color: hsl(var(--primary)); }
-  </style>
-</head>
-<body>
-  <h1>Welcome to MeaCore Studio</h1>
-  <p>This is a real-time preview!</p>
-</body>
-</html>`,
-};
-
 const components = [
     { name: 'Button', description: 'A clickable button.', snippet: '<Button>Click me</Button>' },
     { name: 'Card', description: 'A container for content.', snippet: '<Card>\n  <CardHeader>\n    <CardTitle>Card Title</CardTitle>\n  </CardHeader>\n  <CardContent>\n    <p>Card content goes here.</p>\n  </CardContent>\n</Card>' },
@@ -75,7 +46,8 @@ const components = [
     { name: 'Tabs', description: 'A set of tabs.', snippet: '<Tabs defaultValue="account">\n  <TabsList>\n    <TabsTrigger value="account">Account</TabsTrigger>\n    <TabsTrigger value="password">Password</TabsTrigger>\n  </TabsList>\n  <TabsContent value="account">Account content.</TabsContent>\n  <TabsContent value="password">Password content.</TabsContent>\n</Tabs>' },
 ];
 
-function AiIntellisensePanel({ code, language }: { code: string; language: Language }) {
+function AiIntellisensePanel() {
+  const { code, language, getContextForAI } = useEditor();
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -85,9 +57,11 @@ function AiIntellisensePanel({ code, language }: { code: string; language: Langu
     setSuggestions([]);
     setError('');
     try {
+      // The flow now receives the full context
       const result = await aiPoweredIntelliSense({
         codeSnippet: code,
         programmingLanguage: language,
+        context: getContextForAI(),
       });
       setSuggestions(result.completionSuggestions);
       setError(result.errorDetection);
@@ -130,22 +104,23 @@ function AiIntellisensePanel({ code, language }: { code: string; language: Langu
 }
 
 export function EditorPanel() {
-  const [language, setLanguage] = useState<Language>('javascript');
-  const [code, setCode] = useState(initialCode.javascript);
+  const { code, setCode, language, setLanguage, setFileName } = useEditor();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const isMobile = useIsMobile();
   const { theme } = useTheme();
 
   
-  const handleLanguageChange = (value: Language) => {
+  const handleLanguageChange = (value: 'javascript' | 'python' | 'html') => {
     setLanguage(value);
-    setCode(initialCode[value]);
+    // Potentially set code to a default for that language
+    const defaultFileNames = {
+        javascript: 'script.js',
+        python: 'main.py',
+        html: 'index.html'
+    }
+    setFileName(defaultFileNames[value]);
   };
   
-  const handleCodeChange = (value: string | undefined) => {
-    setCode(value || '');
-  }
-
   const handleEditorDidMount = (editorInstance: editor.IStandaloneCodeEditor) => {
     editorRef.current = editorInstance;
     editorInstance.focus();
@@ -166,12 +141,8 @@ export function EditorPanel() {
   };
 
   const addComponent = (componentSnippet: string) => {
-    const editor = editorRef.current;
-    if (!editor) return;
-
     handleInsertText(componentSnippet);
-    
-    // Switch to editor tab after adding component
+    // Find and click the editor tab trigger
     const editorTabTrigger = document.querySelector('button[role="tab"][value="editor"]');
     if (editorTabTrigger instanceof HTMLElement) {
       editorTabTrigger.click();
@@ -216,7 +187,7 @@ export function EditorPanel() {
             language={language}
             theme={theme === 'dark' ? 'vs-dark' : 'light'}
             value={code}
-            onChange={handleCodeChange}
+            onChange={(value) => setCode(value || '')}
             onMount={handleEditorDidMount}
             options={editorOptions}
           />
@@ -237,13 +208,13 @@ export function EditorPanel() {
                 <DrawerTitle className="sr-only">AI IntelliSense</DrawerTitle>
              </DrawerHeader>
             <div className="p-4 pt-0 h-full">
-              <AiIntellisensePanel code={code} language={language} />
+              <AiIntellisensePanel />
             </div>
           </DrawerContent>
         </Drawer>
       ) : (
         <div className="w-1/3 min-w-[320px]">
-          <AiIntellisensePanel code={code} language={language} />
+          <AiIntellisensePanel />
         </div>
       )}
     </div>
@@ -260,7 +231,7 @@ export function EditorPanel() {
             <TabsTrigger value="gallery" className="gap-2"><GalleryVerticalEnd size={14}/>Gallery</TabsTrigger>
           </TabsList>
           <div className="flex items-center gap-2">
-            <Select value={language} onValueChange={(lang) => handleLanguageChange(lang as Language)}>
+            <Select value={language} onValueChange={(lang) => handleLanguageChange(lang as 'javascript' | 'python' | 'html')}>
               <SelectTrigger className="w-[150px] h-9">
                 <SelectValue placeholder="Language" />
               </SelectTrigger>
@@ -279,10 +250,10 @@ export function EditorPanel() {
            {isMobile && <KeyboardBar language={language} onInsert={handleInsertText} />}
         </TabsContent>
         <TabsContent value="console" className="flex-1 m-0 overflow-hidden">
-            <ConsolePanel code={code} language={language} />
+            <ConsolePanel />
         </TabsContent>
         <TabsContent value="preview" className="flex-1 m-0 overflow-hidden">
-          <PreviewPanel code={code} language={language} />
+          <PreviewPanel />
         </TabsContent>
         <TabsContent value="gallery" className="flex-1 m-0 p-2 overflow-hidden">
             <Card className="h-full">

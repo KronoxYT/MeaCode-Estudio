@@ -4,16 +4,31 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, ExternalLink, Smartphone, Monitor } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useEditor } from '@/contexts/editor-context';
 
-interface PreviewPanelProps {
-  code: string;
-  language: 'javascript' | 'python' | 'html';
-}
-
-export function PreviewPanel({ code, language }: PreviewPanelProps) {
+export function PreviewPanel() {
+  const { code, language, setPreviewError } = useEditor();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
+
+  useEffect(() => {
+    // Escuchar errores del iframe
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const handleIframeError = (event: ErrorEvent) => {
+        setPreviewError(event.message);
+    };
+
+    iframe.contentWindow?.addEventListener('error', handleIframeError);
+
+    return () => {
+        iframe.contentWindow?.removeEventListener('error', handleIframeError);
+    };
+
+  }, [iframeRef, setPreviewError]);
+
 
   useEffect(() => {
     if (language === 'html') {
@@ -25,8 +40,8 @@ export function PreviewPanel({ code, language }: PreviewPanelProps) {
     if (!iframeRef.current) return;
 
     setIsLoading(true);
+    setPreviewError(null);
 
-    // Crear HTML completo con meta tags y soporte para JS/CSS
     const fullHTML = `
       <!DOCTYPE html>
       <html lang="es">
@@ -42,16 +57,20 @@ export function PreviewPanel({ code, language }: PreviewPanelProps) {
           body {
             font-family: system-ui, -apple-system, sans-serif;
             padding: 1rem;
+            background-color: white;
+          }
+          .dark body {
+             background-color: #020817; /* Tailwind dark bg */
+             color: #fafafa;
           }
         </style>
       </head>
-      <body>
+      <body class="${document.documentElement.classList.contains('dark') ? 'dark' : ''}">
         ${code}
       </body>
       </html>
     `;
 
-    // Escribir en el iframe
     const iframeDoc = iframeRef.current.contentDocument;
     if (iframeDoc) {
       iframeDoc.open();
