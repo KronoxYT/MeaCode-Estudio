@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 import type { editor } from 'monaco-editor';
 import { KeyboardBar } from '../editor/keyboard-bar';
 import { ConsolePanel } from './console-panel';
+import { PreviewPanel } from './preview-panel';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
@@ -280,15 +281,8 @@ export function EditorPanel() {
         <TabsContent value="console" className="flex-1 m-0 overflow-hidden">
             <ConsolePanel code={code} language={language} />
         </TabsContent>
-        <TabsContent value="preview" className="flex-1 m-0 p-2 overflow-hidden">
-          <div className="h-full w-full bg-background rounded-lg border">
-            <iframe
-              srcDoc={language === 'html' ? code : '<h1>Preview is only available for HTML</h1>'}
-              title="Preview"
-              sandbox="allow-scripts"
-              className="h-full w-full"
-            />
-          </div>
+        <TabsContent value="preview" className="flex-1 m-0 overflow-hidden">
+          <PreviewPanel code={code} language={language} />
         </TabsContent>
         <TabsContent value="gallery" className="flex-1 m-0 p-2 overflow-hidden">
             <Card className="h-full">
