@@ -29,15 +29,19 @@ import { CommandPalette } from './command-palette';
 
 const AiChatPanel = dynamic(() => import('./panels/ai-chat-panel'), {
   loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
+  ssr: false,
 });
 const FileExplorerPanel = dynamic(() => import('./panels/file-explorer-panel'), {
   loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
+  ssr: false,
 });
 const SourceControlPanel = dynamic(() => import('./panels/source-control-panel'), {
     loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
+    ssr: false,
 });
 const SettingsPanel = dynamic(() => import('./panels/settings-panel'), {
   loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
+  ssr: false,
 });
 
 export type PanelId = 'editor' | 'chat' | 'files' | 'settings' | 'source-control';
