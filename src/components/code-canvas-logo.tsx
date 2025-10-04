@@ -1,6 +1,6 @@
 import type { SVGProps } from 'react';
 
-export function CodeCanvasLogo(props: SVGProps<SVGSVGElement>) {
+export function MeaCoreLogo(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

@@ -22,7 +22,7 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command';
-import { CodeCanvasLogo } from './code-canvas-logo';
+import { MeaCoreLogo } from './code-canvas-logo';
 
 interface CommandPaletteProps {
   open: boolean;
@@ -74,7 +74,7 @@ export function CommandPalette({ open, setOpen, setActiveTab, setIsMeaCodeActive
             <span>Source Control</span>
           </CommandItem>
            <CommandItem onSelect={() => runCommand(() => setIsMeaCodeActive(true))}>
-            <CodeCanvasLogo className="mr-2 h-4 w-4" />
+            <MeaCoreLogo className="mr-2 h-4 w-4" />
             <span>Engage MeaCode</span>
           </CommandItem>
         </CommandGroup>

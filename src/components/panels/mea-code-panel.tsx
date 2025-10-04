@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { CodeCanvasLogo } from '../code-canvas-logo';
+import { MeaCoreLogo } from '../code-canvas-logo';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 interface MeaCodePanelProps {
@@ -40,7 +40,7 @@ export function MeaCodePanel({ onClose }: MeaCodePanelProps) {
                 onClick={onClose}
                 aria-label="Exit MeaCode Mode"
               >
-                <CodeCanvasLogo className="size-6" />
+                <MeaCoreLogo className="size-6" />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right" sideOffset={5}>

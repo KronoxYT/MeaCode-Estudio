@@ -12,7 +12,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { EditorPanel } from './panels/editor-panel';
-import { CodeCanvasLogo } from './code-canvas-logo';
+import { MeaCoreLogo } from './code-canvas-logo';
 import { MeaCodePanel } from './panels/mea-code-panel';
 import dynamic from 'next/dynamic';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -64,7 +64,7 @@ export function IdeLayout() {
   if (isMobile === undefined) {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center bg-background">
-        <CodeCanvasLogo className="size-12 animate-pulse" />
+        <MeaCoreLogo className="size-12 animate-pulse" />
       </div>
     );
   }
@@ -88,28 +88,28 @@ export function IdeLayout() {
             </SheetTrigger>
             <SheetContent side="left" className="w-[250px] p-0">
                <SheetHeader className="border-b p-4 text-left">
-                    <SheetTitle className="sr-only">Menu</SheetTitle>
-                    <h2 className="text-lg font-semibold">CodeCanvas AI</h2>
+                    <SheetTitle className="sr-only">MeaCore Studio Menu</SheetTitle>
+                    <h2 className="text-lg font-semibold">MeaCore Studio</h2>
                 </SheetHeader>
                 <div className="p-4">
                   <button onClick={() => setIsMeaCodeActive(true)} className="flex items-center gap-2 rounded-md p-2 text-left text-sm font-medium w-full hover:bg-muted">
-                    <CodeCanvasLogo className="size-5" />
+                    <MeaCoreLogo className="size-5" />
                     <span>Engage MeaCode</span>
                   </button>
                 </div>
             </SheetContent>
           </Sheet>
-          <h1 className="text-lg font-semibold">CodeCanvas AI</h1>
+          <h1 className="text-lg font-semibold">MeaCore Studio</h1>
           <button onClick={() => setIsMeaCodeActive(true)} className="p-2">
-            <CodeCanvasLogo className="size-6" />
+            <MeaCoreLogo className="size-6" />
           </button>
         </header>
         <main className="flex-1 overflow-hidden">
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PanelId)} className="h-full w-full flex flex-col">
-            <div className="flex-1 overflow-y-auto">
-              <TabsContent value="editor" className={cn("h-full m-0", activeTab !== 'editor' && "hidden")}>
+            <TabsContent value="editor" className={cn("h-full m-0 flex-1", activeTab !== 'editor' && "hidden")}>
                 <EditorPanel />
-              </TabsContent>
+            </TabsContent>
+            <div className={cn("flex-1 overflow-y-auto", activeTab === 'editor' && "hidden")}>
               <TabsContent value="chat" className={cn("h-full m-0", activeTab !== 'chat' && "hidden")}>
                 <AiChatPanel />
               </TabsContent>
@@ -145,7 +145,7 @@ export function IdeLayout() {
       <div className="flex flex-col items-center justify-between h-full bg-background p-2">
           <div className="flex flex-col items-center gap-4">
             <button onClick={() => setIsMeaCodeActive(true)} className="p-2">
-              <CodeCanvasLogo className="size-6" />
+              <MeaCoreLogo className="size-6" />
             </button>
             {panels.map(panel => {
                 const Icon = panel.icon;

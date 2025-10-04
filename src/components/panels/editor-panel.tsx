@@ -28,8 +28,8 @@ import { cn } from '@/lib/utils';
 type Language = 'javascript' | 'python' | 'html';
 
 const initialCode: Record<Language, string> = {
-  javascript: `function greet(name) {\n  console.log('Hello, ' + name);\n}\n\ngreet('CodeCanvas AI');`,
-  python: `def greet(name):\n    print(f"Hello, {name}")\n\ngreet("CodeCanvas AI")`,
+  javascript: `function greet(name) {\n  console.log('Hello, ' + name);\n}\n\ngreet('MeaCore Studio');`,
+  python: `def greet(name):\n    print(f"Hello, {name}")\n\ngreet("MeaCore Studio")`,
   html: `<!DOCTYPE html>
 <html>
 <head>
@@ -40,7 +40,7 @@ const initialCode: Record<Language, string> = {
   </style>
 </head>
 <body>
-  <h1>Welcome to CodeCanvas AI</h1>
+  <h1>Welcome to MeaCore Studio</h1>
   <p>This is a real-time preview!</p>
 </body>
 </html>`,
