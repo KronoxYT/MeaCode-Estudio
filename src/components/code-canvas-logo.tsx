@@ -3,22 +3,38 @@ import type { SVGProps } from 'react';
 export function MeaCoreLogo(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
       {...props}
     >
-      <path d="M7.25 10.25.75 12l6.5 1.75L9 21.25l1.75-6.5L17.25 13l-6.5-1.75L9 3.75 7.25 10.25Z" fill="hsl(var(--primary))" stroke="hsl(var(--primary))"></path>
-      <path d="m16.5 2.5-3 3" stroke="hsl(var(--ring))"></path>
-      <path d="M21.5 7.5_3-3" stroke="hsl(var(--ring))"></path>
-      <path d="m14 10 3 3" stroke="hsl(var(--ring))"></path>
+      <defs>
+        <linearGradient id="logo-gradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="hsl(var(--primary))" />
+          <stop offset="100%" stopColor="hsl(var(--ring))" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M12 2L4 6.5V15.5L12 20L20 15.5V6.5L12 2Z"
+        fill="url(#logo-gradient)"
+      />
+      <path
+        d="M9.5 8.5L6.5 11.5L9.5 14.5"
+        stroke="hsl(var(--primary-foreground))"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M14.5 8.5L17.5 11.5L14.5 14.5"
+        stroke="hsl(var(--primary-foreground))"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
