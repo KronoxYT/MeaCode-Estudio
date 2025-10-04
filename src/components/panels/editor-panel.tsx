@@ -1,5 +1,7 @@
 'use client';
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useTheme } from 'next-themes';
 import {
   Tabs,
   TabsContent,
@@ -14,7 +16,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -24,6 +25,12 @@ import { Skeleton } from '../ui/skeleton';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Drawer, DrawerContent, DrawerTrigger, DrawerTitle, DrawerHeader } from '../ui/drawer';
 import { cn } from '@/lib/utils';
+
+const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
+  ssr: false,
+  loading: () => <Skeleton className="w-full h-full" />,
+});
+
 
 type Language = 'javascript' | 'python' | 'html';
 
@@ -111,24 +118,40 @@ export function EditorPanel() {
   const [language, setLanguage] = useState<Language>('javascript');
   const [code, setCode] = useState(initialCode.javascript);
   const isMobile = useIsMobile();
+  const { theme } = useTheme();
+
   
   const handleLanguageChange = (value: Language) => {
     setLanguage(value);
     setCode(initialCode[value]);
   };
   
+  const handleCodeChange = (value: string | undefined) => {
+    setCode(value || '');
+  }
+
   const addComponent = (componentSnippet: string) => {
     setCode(currentCode => currentCode + `\n${componentSnippet}\n`);
   };
 
   const renderEditorContent = () => (
     <div className="flex-1 flex flex-col gap-2 overflow-hidden h-full relative">
-      <Textarea
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        className="flex-1 h-full font-code text-base resize-none rounded-lg bg-background"
-        placeholder="Write your code here..."
-      />
+       <div className="flex-1 h-full font-code text-base resize-none rounded-lg bg-background overflow-hidden border">
+         <MonacoEditor
+            height="100%"
+            language={language}
+            theme={theme === 'dark' ? 'vs-dark' : 'light'}
+            value={code}
+            onChange={handleCodeChange}
+            options={{
+              minimap: { enabled: !isMobile },
+              fontSize: 14,
+              wordWrap: 'on',
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+            }}
+          />
+       </div>
       {isMobile ? (
         <Drawer>
           <DrawerTrigger asChild>
