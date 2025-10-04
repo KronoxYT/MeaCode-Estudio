@@ -3,23 +3,10 @@
 import { useState } from 'react';
 import {
   FileCode,
-  GitBranch,
   MessageSquare,
   Settings,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Menu,
   File as FileIcon,
-  Lightbulb,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { EditorPanel } from './panels/editor-panel';
@@ -38,19 +25,15 @@ const FileExplorerPanel = dynamic(() => import('./panels/file-explorer-panel'), 
 const SettingsPanel = dynamic(() => import('./panels/settings-panel'), {
   loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
 });
-const SourceControlPanel = dynamic(() => import('./panels/source-control-panel'), {
-  loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
-});
-
 
 type PanelId = 'editor' | 'chat' | 'files' | 'settings';
 
-const panels = {
-  editor: { icon: FileIcon, label: 'Editor' },
-  chat: { icon: MessageSquare, label: 'AI Chat' },
-  files: { icon: FileCode, label: 'File Explorer' },
-  settings: { icon: Settings, label: 'Settings' },
-};
+const panels: { id: PanelId; icon: React.ElementType; label: string }[] = [
+  { id: 'editor', icon: FileIcon, label: 'Editor' },
+  { id: 'chat', icon: MessageSquare, label: 'AI Chat' },
+  { id: 'files', icon: FileCode, label: 'File Explorer' },
+  { id: 'settings', icon: Settings, label: 'Settings' },
+];
 
 export function IdeLayout() {
   const [isMeaCodeActive, setIsMeaCodeActive] = useState(false);
@@ -60,32 +43,48 @@ export function IdeLayout() {
   if (isMeaCodeActive) {
     return <MeaCodePanel onClose={() => setIsMeaCodeActive(false)} />;
   }
+  
+  // Prevents hydration mismatch by showing a loader until client-side check is complete
+  if (isMobile === undefined) {
+    return (
+      <div className="flex h-screen w-full flex-col items-center justify-center bg-background">
+        <CodeCanvasLogo className="size-12 animate-pulse" />
+      </div>
+    );
+  }
 
   // Mobile Layout
   if (isMobile) {
     return (
       <div className="flex h-screen w-full flex-col bg-muted/40">
         <header className="flex h-14 items-center justify-between border-b bg-background px-4">
-           <Button variant="ghost" size="icon" className="p-2" onClick={() => setIsMeaCodeActive(true)}>
+           <button onClick={() => setIsMeaCodeActive(true)} className="p-2">
               <CodeCanvasLogo className="size-6" />
-           </Button>
+           </button>
            <h1 className="text-lg font-semibold">CodeCanvas AI</h1>
            <div></div>
         </header>
         <main className="flex-1 overflow-hidden">
-          {activeTab === 'editor' && <EditorPanel />}
-          {activeTab === 'chat' && <AiChatPanel />}
-          {activeTab === 'files' && <FileExplorerPanel />}
-          {activeTab === 'settings' && <SettingsPanel />}
+          <TabsContent value="editor" className={cn("h-full", activeTab !== 'editor' && "hidden")}>
+             <EditorPanel />
+          </TabsContent>
+          <TabsContent value="chat" className={cn("h-full", activeTab !== 'chat' && "hidden")}>
+             <AiChatPanel />
+          </TabsContent>
+          <TabsContent value="files" className={cn("h-full", activeTab !== 'files' && "hidden")}>
+            <FileExplorerPanel />
+          </TabsContent>
+          <TabsContent value="settings" className={cn("h-full", activeTab !== 'settings' && "hidden")}>
+             <SettingsPanel />
+          </TabsContent>
         </main>
         <footer className="border-t bg-background">
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as PanelId)} className="w-full">
             <TabsList className="grid h-full w-full grid-cols-4 rounded-none">
-              {Object.keys(panels).map(panelId => {
-                const panel = panels[panelId as PanelId];
+              {panels.map(panel => {
                 const Icon = panel.icon;
                 return (
-                  <TabsTrigger key={panelId} value={panelId} className="flex-col gap-1 py-2 h-auto data-[state=active]:bg-primary/10">
+                  <TabsTrigger key={panel.id} value={panel.id} className="flex-col gap-1 py-2 h-auto data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
                     <Icon className="size-5" />
                     <span className="text-xs">{panel.label}</span>
                   </TabsTrigger>
@@ -100,103 +99,41 @@ export function IdeLayout() {
   
   // Desktop Layout
   return (
-    <TooltipProvider delayDuration={0}>
-      <div className="flex h-screen w-full bg-muted/40 text-foreground overflow-hidden">
-        <aside className="flex flex-col items-center justify-between gap-4 border-r bg-background p-2">
+    <div className="flex h-screen w-full bg-background">
+        <aside className="flex flex-col items-center justify-between gap-4 border-r bg-muted/40 p-2">
             <div className="flex flex-col items-center gap-4">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="p-2"
-                    onClick={() => setIsMeaCodeActive(true)}
-                    aria-label="Enter MeaCode Mode"
-                  >
-                    <CodeCanvasLogo className="size-6" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={5}>
-                  MeaCode (Modo Solo)
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={cn('rounded-lg', activeTab === 'files' && 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground')}
-                      onClick={() => setActiveTab('files')}
-                      aria-label="File Explorer"
+              <button onClick={() => setIsMeaCodeActive(true)} className="p-2">
+                <CodeCanvasLogo className="size-6" />
+              </button>
+              {panels.filter(p => p.id !== 'editor').map(panel => {
+                  const Icon = panel.icon;
+                  return (
+                    <button
+                      key={panel.id}
+                      onClick={() => setActiveTab(activeTab === panel.id ? 'editor' : panel.id)}
+                      className={cn(
+                        'flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-primary/10 hover:text-primary',
+                        activeTab === panel.id && 'bg-primary text-primary-foreground'
+                      )}
                     >
-                      <FileCode className="size-5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right" sideOffset={5}>
-                    File Explorer
-                  </TooltipContent>
-              </Tooltip>
-               <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={cn('rounded-lg', activeTab === 'chat' && 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground')}
-                      onClick={() => setActiveTab('chat')}
-                      aria-label="AI Chat"
-                    >
-                      <MessageSquare className="size-5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right" sideOffset={5}>
-                    AI Chat
-                  </TooltipContent>
-              </Tooltip>
-               <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={cn('rounded-lg', activeTab === 'settings' && 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground')}
-                      onClick={() => setActiveTab('settings')}
-                      aria-label="Settings"
-                    >
-                      <Settings className="size-5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right" sideOffset={5}>
-                    Settings
-                  </TooltipContent>
-              </Tooltip>
+                      <Icon className="size-5" />
+                    </button>
+                  )
+              })}
             </div>
-             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="mt-auto rounded-lg" onClick={() => setActiveTab('editor')}>
-                  <PanelLeftClose />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={5}>
-                Close Panel
-              </TooltipContent>
-            </Tooltip>
         </aside>
 
-        <div className={cn('bg-background transition-all duration-300 ease-in-out', activeTab !== 'editor' ? 'w-[320px]' : 'w-0')}>
-          {activeTab !== 'editor' && (
-            <div className="h-full w-full overflow-y-auto border-r">
-                {activeTab === 'files' && <FileExplorerPanel />}
-                {activeTab === 'chat' && <AiChatPanel />}
-                {activeTab === 'settings' && <SettingsPanel />}
-            </div>
-          )}
+        <div className={cn('bg-muted/40 transition-all duration-300 ease-in-out', activeTab !== 'editor' ? 'w-[320px]' : 'w-0')}>
+          <div className="h-full w-full overflow-y-auto border-r">
+              {activeTab === 'files' && <FileExplorerPanel />}
+              {activeTab === 'chat' && <AiChatPanel />}
+              {activeTab === 'settings' && <SettingsPanel />}
+          </div>
         </div>
 
         <main className="flex-1 flex flex-col min-w-0">
           <EditorPanel />
         </main>
       </div>
-    </TooltipProvider>
   );
 }
-
-    
