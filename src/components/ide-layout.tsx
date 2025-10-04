@@ -25,6 +25,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from './ui/sheet';
+import { CommandPalette } from './command-palette';
 
 const AiChatPanel = dynamic(() => import('./panels/ai-chat-panel'), {
   loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
@@ -39,9 +40,9 @@ const SettingsPanel = dynamic(() => import('./panels/settings-panel'), {
   loading: () => <div className="p-4"><Skeleton className="h-20 w-full" /></div>,
 });
 
-type PanelId = 'editor' | 'chat' | 'files' | 'settings' | 'source-control';
+export type PanelId = 'editor' | 'chat' | 'files' | 'settings' | 'source-control';
 
-const panels: { id: PanelId; icon: React.ElementType; label: string }[] = [
+export const panels: { id: PanelId; icon: React.ElementType; label: string }[] = [
   { id: 'editor', icon: FileIcon, label: 'Editor' },
   { id: 'chat', icon: MessageSquare, label: 'AI Chat' },
   { id: 'files', icon: FileCode, label: 'Explorer' },
@@ -53,6 +54,7 @@ export function IdeLayout() {
   const [isMeaCodeActive, setIsMeaCodeActive] = useState(false);
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState<PanelId>('editor');
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   if (isMeaCodeActive) {
     return <MeaCodePanel onClose={() => setIsMeaCodeActive(false)} />;
@@ -71,6 +73,12 @@ export function IdeLayout() {
   if (isMobile) {
     return (
       <div className="flex h-screen w-full flex-col bg-muted/40">
+         <CommandPalette
+            open={commandPaletteOpen}
+            setOpen={setCommandPaletteOpen}
+            setActiveTab={setActiveTab}
+            setIsMeaCodeActive={setIsMeaCodeActive}
+        />
         <header className="flex h-14 items-center justify-between border-b bg-background px-4">
           <Sheet>
             <SheetTrigger asChild>
@@ -160,6 +168,12 @@ export function IdeLayout() {
 
   return (
     <div className="flex h-screen w-full bg-background">
+      <CommandPalette
+        open={commandPaletteOpen}
+        setOpen={setCommandPaletteOpen}
+        setActiveTab={setActiveTab}
+        setIsMeaCodeActive={setIsMeaCodeActive}
+      />
       <aside className="flex flex-col items-center justify-between gap-4 border-r bg-background p-2">
           {renderSidebarContent()}
       </aside>
