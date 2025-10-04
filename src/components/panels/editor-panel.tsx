@@ -26,6 +26,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Drawer, DrawerContent, DrawerTrigger, DrawerTitle, DrawerHeader } from '../ui/drawer';
 import { cn } from '@/lib/utils';
 import type { editor } from 'monaco-editor';
+import { KeyboardBar } from '../editor/keyboard-bar';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
@@ -139,26 +140,26 @@ export function EditorPanel() {
     editorInstance.focus();
   };
 
-  const addComponent = (componentSnippet: string) => {
+  const handleInsertText = (text: string) => {
     const editor = editorRef.current;
     if (!editor) return;
 
     const selection = editor.getSelection();
     if (selection) {
-      const id = { major: 1, minor: 1 };
-      const text = `\n${componentSnippet}\n`;
-      const op = {identifier: id, range: selection, text: text, forceMoveMarkers: true};
-      editor.executeEdits("my-source", [op]);
-    } else {
-        const lastLine = editor.getModel()?.getLineCount() || 1;
-        const lastCol = editor.getModel()?.getLineMaxColumn(lastLine) || 1;
         const id = { major: 1, minor: 1 };
-        const text = `\n${componentSnippet}\n`;
-        const op = {identifier: id, range: new monaco.Selection(lastLine, lastCol, lastLine, lastCol), text: text, forceMoveMarkers: true};
-        editor.executeEdits("my-source", [op]);
+        const op = {identifier: id, range: selection, text: text, forceMoveMarkers: true};
+        editor.executeEdits("keyboard-bar", [op]);
     }
     
     editor.focus();
+  };
+
+  const addComponent = (componentSnippet: string) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    handleInsertText(componentSnippet);
+    
     // Switch to editor tab after adding component
     const editorTabTrigger = document.querySelector('button[role="tab"][value="editor"]');
     if (editorTabTrigger instanceof HTMLElement) {
@@ -259,10 +260,11 @@ export function EditorPanel() {
             </Select>
           </div>
         </div>
-        <TabsContent value="editor" className="flex-1 m-0 p-2 overflow-hidden">
-          <div className={cn("flex gap-2 h-full", isMobile ? "flex-col" : "flex-row")}>
+        <TabsContent value="editor" className="flex-1 m-0 p-2 overflow-hidden flex flex-col">
+          <div className={cn("flex gap-2 flex-1 min-h-0", isMobile ? "flex-col" : "flex-row")}>
              {renderEditorContent()}
           </div>
+           {isMobile && <KeyboardBar language={language} onInsert={handleInsertText} />}
         </TabsContent>
         <TabsContent value="preview" className="flex-1 m-0 p-2 overflow-hidden">
           <div className="h-full w-full bg-background rounded-lg border">
