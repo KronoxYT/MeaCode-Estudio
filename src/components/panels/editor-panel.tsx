@@ -22,7 +22,7 @@ import { Sparkles, Code, Terminal, GalleryVerticalEnd } from 'lucide-react';
 import { aiPoweredIntelliSense } from '@/ai/flows/ai-powered-intellisense';
 import { Skeleton } from '../ui/skeleton';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Drawer, DrawerContent, DrawerTrigger, DrawerTitle } from '../ui/drawer';
+import { Drawer, DrawerContent, DrawerTrigger, DrawerTitle, DrawerHeader } from '../ui/drawer';
 
 type Language = 'javascript' | 'python' | 'html';
 
@@ -76,9 +76,9 @@ function AiIntellisensePanel({ code, language }: { code: string; language: Langu
   };
 
   return (
-    <Card className="flex flex-col rounded-lg h-full">
+    <Card className="flex flex-col rounded-lg h-full border-0 shadow-none">
       <CardHeader className="pb-2">
-        <CardTitle className="text-xl flex items-center gap-2">
+        <CardTitle className="text-lg flex items-center gap-2">
           <Sparkles className="text-primary" /> AI IntelliSense
         </CardTitle>
       </CardHeader>
@@ -87,18 +87,19 @@ function AiIntellisensePanel({ code, language }: { code: string; language: Langu
           {isLoading ? 'Analyzing...' : 'Get AI Suggestions'}
         </Button>
         <div className="flex-1 flex flex-col gap-4 overflow-hidden">
-          <h3 className="font-semibold flex items-center gap-2"><Code/> Suggestions</h3>
-          <ScrollArea className="flex-1 rounded-md border p-2 bg-muted/50">
+          <h3 className="font-semibold flex items-center gap-2 text-sm"><Code size={16}/> Suggestions</h3>
+          <ScrollArea className="flex-1 rounded-md border p-2 bg-muted/50 max-h-48">
             {isLoading && Array.from({length: 3}).map((_, i) => <Skeleton key={i} className="h-4 w-full my-2"/>)}
             {!isLoading && suggestions.length > 0 ? (
                <ul className="space-y-2 font-code text-sm">
                 {suggestions.map((s, i) => <li key={i} className="p-2 bg-background rounded">{s}</li>)}
               </ul>
-            ) : !isLoading && <p className="text-sm text-muted-foreground text-center pt-8">No suggestions yet.</p>}
+            ) : !isLoading && <p className="text-xs text-muted-foreground text-center pt-8">No suggestions yet.</p>}
           </ScrollArea>
-          <h3 className="font-semibold flex items-center gap-2"><Terminal/> Errors</h3>
-          {error && <Alert variant="destructive"><AlertTitle>Error Detected</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
-           {!error && !isLoading && <p className="text-sm text-muted-foreground">No errors detected.</p>}
+          <h3 className="font-semibold flex items-center gap-2 text-sm"><Terminal size={16}/> Errors</h3>
+          {error ? <Alert variant="destructive" className="text-xs"><AlertTitle className="text-sm">Error Detected</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>
+          : !isLoading && <p className="text-xs text-muted-foreground">No errors detected.</p>
+          }
         </div>
       </CardContent>
     </Card>
@@ -121,7 +122,7 @@ export function EditorPanel() {
   };
 
   const renderEditorContent = () => (
-    <div className="flex-1 flex flex-col md:flex-row gap-2 overflow-hidden h-full">
+    <div className="flex-1 flex flex-col gap-2 overflow-hidden h-full">
       <Textarea
         value={code}
         onChange={(e) => setCode(e.target.value)}
@@ -131,19 +132,21 @@ export function EditorPanel() {
       {isMobile ? (
         <Drawer>
           <DrawerTrigger asChild>
-            <Button variant="outline" className="mt-2">
-              <Sparkles className="mr-2" /> AI IntelliSense
+            <Button variant="outline" className="mt-2 w-full">
+              <Sparkles className="mr-2" size={16} /> AI IntelliSense
             </Button>
           </DrawerTrigger>
-          <DrawerContent className="h-[60%]">
-            <DrawerTitle className="sr-only">AI IntelliSense</DrawerTitle>
-            <div className="p-4 h-full">
+          <DrawerContent>
+             <DrawerHeader>
+                <DrawerTitle className="sr-only">AI IntelliSense</DrawerTitle>
+             </DrawerHeader>
+            <div className="p-4 pt-0 h-full">
               <AiIntellisensePanel code={code} language={language} />
             </div>
           </DrawerContent>
         </Drawer>
       ) : (
-        <div className="w-1/3">
+        <div className="w-1/3 min-w-[300px]">
           <AiIntellisensePanel code={code} language={language} />
         </div>
       )}
@@ -173,7 +176,36 @@ export function EditorPanel() {
           </div>
         </div>
         <TabsContent value="editor" className="flex-1 m-0 p-2 overflow-hidden">
-          {renderEditorContent()}
+          <div className="flex flex-col md:flex-row gap-2 h-full">
+             <Textarea
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              className="flex-1 h-full font-code text-base resize-none rounded-lg"
+              placeholder="Write your code here..."
+            />
+            {!isMobile && (
+              <div className="w-1/3 min-w-[300px]">
+                <AiIntellisensePanel code={code} language={language} />
+              </div>
+            )}
+            {isMobile && 
+              <Drawer>
+                <DrawerTrigger asChild>
+                  <Button variant="outline" className="mt-2">
+                    <Sparkles className="mr-2" size={16} /> AI IntelliSense
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader>
+                    <DrawerTitle className="sr-only">AI IntelliSense</DrawerTitle>
+                  </DrawerHeader>
+                  <div className="p-4 pt-0">
+                    <AiIntellisensePanel code={code} language={language} />
+                  </div>
+                </DrawerContent>
+              </Drawer>
+            }
+          </div>
         </TabsContent>
         <TabsContent value="preview" className="flex-1 m-0 p-2 overflow-hidden">
           <div className="h-full w-full bg-background rounded-lg border">
@@ -207,3 +239,5 @@ export function EditorPanel() {
     </div>
   );
 }
+
+    
