@@ -20,6 +20,8 @@ import {
 import {
   Sheet,
   SheetContent,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -156,6 +158,9 @@ export function IdeLayout() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-80">
+              <SheetHeader>
+                <SheetTitle className="sr-only">Main Menu</SheetTitle>
+              </SheetHeader>
               {renderSidebarContent()}
             </SheetContent>
           </Sheet>
