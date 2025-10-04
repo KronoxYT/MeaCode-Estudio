@@ -18,11 +18,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Code, Terminal, GalleryVerticalEnd } from 'lucide-react';
+import { Sparkles, Code, Terminal, GalleryVerticalEnd, Lightbulb } from 'lucide-react';
 import { aiPoweredIntelliSense } from '@/ai/flows/ai-powered-intellisense';
 import { Skeleton } from '../ui/skeleton';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Drawer, DrawerContent, DrawerTrigger, DrawerTitle, DrawerHeader } from '../ui/drawer';
+import { cn } from '@/lib/utils';
 
 type Language = 'javascript' | 'python' | 'html';
 
@@ -76,7 +77,7 @@ function AiIntellisensePanel({ code, language }: { code: string; language: Langu
   };
 
   return (
-    <Card className="flex flex-col rounded-lg h-full border-0 shadow-none">
+    <Card className="flex flex-col rounded-lg h-full border-0 shadow-none bg-transparent">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
           <Sparkles className="text-primary" /> AI IntelliSense
@@ -122,18 +123,22 @@ export function EditorPanel() {
   };
 
   const renderEditorContent = () => (
-    <div className="flex-1 flex flex-col gap-2 overflow-hidden h-full">
+    <div className="flex-1 flex flex-col gap-2 overflow-hidden h-full relative">
       <Textarea
         value={code}
         onChange={(e) => setCode(e.target.value)}
-        className="flex-1 h-full font-code text-base resize-none rounded-lg"
+        className="flex-1 h-full font-code text-base resize-none rounded-lg bg-background"
         placeholder="Write your code here..."
       />
       {isMobile ? (
         <Drawer>
           <DrawerTrigger asChild>
-            <Button variant="outline" className="mt-2 w-full">
-              <Sparkles className="mr-2" size={16} /> AI IntelliSense
+            <Button
+              variant="default"
+              size="icon"
+              className="absolute bottom-4 right-4 h-14 w-14 rounded-full shadow-lg"
+            >
+              <Lightbulb className="h-6 w-6" />
             </Button>
           </DrawerTrigger>
           <DrawerContent>
@@ -146,7 +151,7 @@ export function EditorPanel() {
           </DrawerContent>
         </Drawer>
       ) : (
-        <div className="w-1/3 min-w-[300px]">
+        <div className="w-1/3 min-w-[320px]">
           <AiIntellisensePanel code={code} language={language} />
         </div>
       )}
@@ -163,7 +168,7 @@ export function EditorPanel() {
             <TabsTrigger value="gallery">Gallery</TabsTrigger>
           </TabsList>
           <div className="flex items-center gap-2">
-            <Select value={language} onValueChange={handleLanguageChange}>
+            <Select value={language} onValueChange={(lang) => handleLanguageChange(lang as Language)}>
               <SelectTrigger className="w-[150px] h-9">
                 <SelectValue placeholder="Language" />
               </SelectTrigger>
@@ -176,41 +181,14 @@ export function EditorPanel() {
           </div>
         </div>
         <TabsContent value="editor" className="flex-1 m-0 p-2 overflow-hidden">
-          <div className="flex flex-col md:flex-row gap-2 h-full">
-             <Textarea
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              className="flex-1 h-full font-code text-base resize-none rounded-lg"
-              placeholder="Write your code here..."
-            />
-            {!isMobile && (
-              <div className="w-1/3 min-w-[300px]">
-                <AiIntellisensePanel code={code} language={language} />
-              </div>
-            )}
-            {isMobile && 
-              <Drawer>
-                <DrawerTrigger asChild>
-                  <Button variant="outline" className="mt-2">
-                    <Sparkles className="mr-2" size={16} /> AI IntelliSense
-                  </Button>
-                </DrawerTrigger>
-                <DrawerContent>
-                  <DrawerHeader>
-                    <DrawerTitle className="sr-only">AI IntelliSense</DrawerTitle>
-                  </DrawerHeader>
-                  <div className="p-4 pt-0">
-                    <AiIntellisensePanel code={code} language={language} />
-                  </div>
-                </DrawerContent>
-              </Drawer>
-            }
+          <div className={cn("flex gap-2 h-full", isMobile ? "flex-col" : "flex-row")}>
+             {renderEditorContent()}
           </div>
         </TabsContent>
         <TabsContent value="preview" className="flex-1 m-0 p-2 overflow-hidden">
           <div className="h-full w-full bg-background rounded-lg border">
             <iframe
-              srcDoc={code}
+              srcDoc={language === 'html' ? code : '<h1>Preview is only available for HTML</h1>'}
               title="Preview"
               sandbox="allow-scripts"
               className="h-full w-full"
@@ -239,5 +217,3 @@ export function EditorPanel() {
     </div>
   );
 }
-
-    
