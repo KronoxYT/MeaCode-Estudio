@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Code, Terminal, GalleryVerticalEnd, Lightbulb, Loader2 } from 'lucide-react';
+import { Sparkles, Code, Terminal, GalleryVerticalEnd, Lightbulb, Loader2, Eye, FileCode } from 'lucide-react';
 import { aiPoweredIntelliSense } from '@/ai/flows/ai-powered-intellisense';
 import { Skeleton } from '../ui/skeleton';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -27,6 +27,7 @@ import { Drawer, DrawerContent, DrawerTrigger, DrawerTitle, DrawerHeader } from 
 import { cn } from '@/lib/utils';
 import type { editor } from 'monaco-editor';
 import { KeyboardBar } from '../editor/keyboard-bar';
+import { ConsolePanel } from './console-panel';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
@@ -39,8 +40,17 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
 type Language = 'javascript' | 'python' | 'html';
 
 const initialCode: Record<Language, string> = {
-  javascript: `function greet(name) {\n  console.log('Hello, ' + name);\n}\n\ngreet('MeaCore Studio');`,
-  python: `def greet(name):\n    print(f"Hello, {name}")\n\ngreet("MeaCore Studio")`,
+  javascript: `// Press 'Run' in the console tab to see the output!
+console.log('Hello, MeaCore Studio!');
+
+const user = { name: "Alex", role: "Developer" };
+console.warn("This is a warning message.");
+console.error("This is an error message.");
+console.info("User object:", user);`,
+  python: `def greet(name):
+    print(f"Hello, {name}")
+
+greet("MeaCore Studio")`,
   html: `<!DOCTYPE html>
 <html>
 <head>
@@ -243,9 +253,10 @@ export function EditorPanel() {
       <Tabs defaultValue="editor" className="flex-1 flex flex-col">
         <div className="flex items-center justify-between border-b bg-background p-2">
           <TabsList className="bg-muted">
-            <TabsTrigger value="editor">Editor</TabsTrigger>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
-            <TabsTrigger value="gallery">Gallery</TabsTrigger>
+            <TabsTrigger value="editor" className="gap-2"><FileCode size={14}/>Editor</TabsTrigger>
+            <TabsTrigger value="console" className="gap-2"><Terminal size={14}/>Console</TabsTrigger>
+            <TabsTrigger value="preview" className="gap-2"><Eye size={14}/>Preview</TabsTrigger>
+            <TabsTrigger value="gallery" className="gap-2"><GalleryVerticalEnd size={14}/>Gallery</TabsTrigger>
           </TabsList>
           <div className="flex items-center gap-2">
             <Select value={language} onValueChange={(lang) => handleLanguageChange(lang as Language)}>
@@ -265,6 +276,9 @@ export function EditorPanel() {
              {renderEditorContent()}
           </div>
            {isMobile && <KeyboardBar language={language} onInsert={handleInsertText} />}
+        </TabsContent>
+        <TabsContent value="console" className="flex-1 m-0 overflow-hidden">
+            <ConsolePanel code={code} language={language} />
         </TabsContent>
         <TabsContent value="preview" className="flex-1 m-0 p-2 overflow-hidden">
           <div className="h-full w-full bg-background rounded-lg border">
