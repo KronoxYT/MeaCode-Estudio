@@ -42,10 +42,18 @@ const initialCode: Record<Language, string> = {
   javascript: `// Press 'Run' in the console tab to see the output!
 console.log('Hello, CodeCanvas AI!');
 
+function calculateSum(a, b) {
+  // Intentionally introduce an error:
+  consele.log('This will cause a reference error.');
+  return a + b;
+}
+
 const user = { name: "Alex", role: "Developer" };
 console.warn("This is a warning message.");
-console.error("This is an error message.");
-console.info("User object:", user);`,
+console.info("User object:", user);
+
+calculateSum(5, 10);
+`,
   python: `def greet(name):
     print(f"Hello, {name}")
 
@@ -57,11 +65,20 @@ greet("CodeCanvas AI")`,
   <style>
     body { font-family: sans-serif; background-color: #f0f0f0; color: #111; }
     h1 { color: hsl(var(--primary)); }
+    button {
+        padding: 10px 15px;
+        border: none;
+        background-color: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        border-radius: 5px;
+        cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <h1>Welcome to CodeCanvas AI</h1>
   <p>This is a real-time preview!</p>
+  <button onclick="alert('Button clicked!')">Click Me</button>
 </body>
 </html>`,
 };
@@ -108,7 +125,7 @@ export function EditorProvider({ children }: { children: ReactNode }) {
           timestamp: l.timestamp.toISOString(),
         })),
         warnings: consoleLogs.filter(l => l.type === 'warn').length,
-        hasOutput: consoleLogs.length > 0,
+        hasErrors: hasErrors,
       },
       preview: {
         hasError: !!previewError,
@@ -118,7 +135,7 @@ export function EditorProvider({ children }: { children: ReactNode }) {
     };
 
     return JSON.stringify(context, null, 2);
-  }, [code, language, fileName, consoleLogs, previewError]);
+  }, [code, language, fileName, consoleLogs, previewError, hasErrors]);
 
   return (
     <EditorContext.Provider
