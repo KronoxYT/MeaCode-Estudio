@@ -112,13 +112,6 @@ export function EditorPanel() {
   
   const handleLanguageChange = (value: 'javascript' | 'python' | 'html') => {
     setLanguage(value);
-    // Potentially set code to a default for that language
-    const defaultFileNames = {
-        javascript: 'script.js',
-        python: 'main.py',
-        html: 'index.html'
-    }
-    setFileName(defaultFileNames[value]);
   };
   
   const handleEditorDidMount = (editorInstance: editor.IStandaloneCodeEditor) => {
@@ -225,10 +218,10 @@ export function EditorPanel() {
       <Tabs defaultValue="editor" className="flex-1 flex flex-col">
         <div className="flex items-center justify-between border-b bg-background p-2">
           <TabsList className="bg-muted">
-            <TabsTrigger value="editor" className="gap-2"><FileCode size={14}/>Editor</TabsTrigger>
-            <TabsTrigger value="console" className="gap-2"><Terminal size={14}/>Console</TabsTrigger>
-            <TabsTrigger value="preview" className="gap-2"><Eye size={14}/>Preview</TabsTrigger>
-            <TabsTrigger value="gallery" className="gap-2"><GalleryVerticalEnd size={14}/>Gallery</TabsTrigger>
+            <TabsTrigger value="editor"><FileCode size={14}/></TabsTrigger>
+            <TabsTrigger value="console"><Terminal size={14}/></TabsTrigger>
+            <TabsTrigger value="preview"><Eye size={14}/></TabsTrigger>
+            <TabsTrigger value="gallery"><GalleryVerticalEnd size={14}/></TabsTrigger>
           </TabsList>
           <div className="flex items-center gap-2">
             <Select value={language} onValueChange={(lang) => handleLanguageChange(lang as 'javascript' | 'python' | 'html')}>
