@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import type { FormEvent } from 'react';
+import { useState, useRef, useEffect, FormEvent } from 'react';
 import {
   CornerDownLeft,
   Bot,
@@ -90,8 +89,8 @@ export function AIChatPanel() {
     const match = content.match(suggestionRegex);
     if (match) {
         const suggestedCode = match[1].trim();
-        const cleanContent = content.replace(suggestionRegex, '').trim();
-        return { cleanContent, suggestedCode };
+        // Return the full content, the suggestion will be rendered separately
+        return { cleanContent: content, suggestedCode };
     }
     return { cleanContent: content, suggestedCode: null };
   };
@@ -125,7 +124,7 @@ export function AIChatPanel() {
       const assistantMessage: Message = {
         id: `${Date.now()}-assistant`,
         role: 'assistant',
-        content: cleanContent || response.response, // Fallback to original if clean is empty
+        content: cleanContent.replace(/```suggestion:\w+\n([\s\S]*?)```/g, '').trim(),
         timestamp: new Date(),
         suggestedCode: suggestedCode || undefined,
         language,
