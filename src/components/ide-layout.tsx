@@ -88,8 +88,7 @@ export function IdeLayout() {
             </SheetTrigger>
             <SheetContent side="left" className="w-[250px] p-0">
                <SheetHeader className="border-b p-4 text-left">
-                    <SheetTitle className="sr-only">MeaCore Studio Menu</SheetTitle>
-                    <h2 className="text-lg font-semibold">MeaCore Studio</h2>
+                    <SheetTitle>MeaCore Studio</SheetTitle>
                 </SheetHeader>
                 <div className="p-4">
                   <button onClick={() => setIsMeaCodeActive(true)} className="flex items-center gap-2 rounded-md p-2 text-left text-sm font-medium w-full hover:bg-muted">
@@ -100,7 +99,7 @@ export function IdeLayout() {
             </SheetContent>
           </Sheet>
           <h1 className="text-lg font-semibold">MeaCore Studio</h1>
-          <button onClick={() => setIsMeaCodeActive(true)} className="p-2">
+          <button onClick={() => setCommandPaletteOpen(true)} className="p-2">
             <MeaCoreLogo className="size-6" />
           </button>
         </header>
@@ -142,9 +141,9 @@ export function IdeLayout() {
 
   // Desktop Layout
   const renderSidebarContent = () => (
-      <div className="flex flex-col items-center justify-between h-full bg-background p-2">
+      <div className="flex flex-col items-center justify-between h-full py-2">
           <div className="flex flex-col items-center gap-4">
-            <button onClick={() => setIsMeaCodeActive(true)} className="p-2">
+            <button onClick={() => setCommandPaletteOpen(true)} className="p-2">
               <MeaCoreLogo className="size-6" />
             </button>
             {panels.map(panel => {
@@ -179,19 +178,24 @@ export function IdeLayout() {
       </aside>
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PanelId)} className="flex-1 flex">
-          <div className={cn('bg-muted/40 transition-all duration-300 ease-in-out', activeTab !== 'editor' ? 'w-[320px]' : 'w-0')}>
+          <div className={cn('bg-muted/40 transition-all duration-300 ease-in-out', activeTab !== 'editor' && activeTab !== 'preview' ? 'w-[320px]' : 'w-0')}>
             <div className="h-full w-full overflow-y-auto border-r">
-                <TabsContent value="files"><FileExplorerPanel /></TabsContent>
-                <TabsContent value="chat"><AiChatPanel /></TabsContent>
-                <TabsContent value="source-control"><SourceControlPanel /></TabsContent>
-                <TabsContent value="settings"><SettingsPanel /></TabsContent>
+                <TabsContent value="files" className={cn(activeTab !== 'files' && 'h-0 overflow-hidden')}><FileExplorerPanel /></TabsContent>
+                <TabsContent value="chat" className={cn(activeTab !== 'chat' && 'h-0 overflow-hidden')}><AiChatPanel /></TabsContent>
+                <TabsContent value="source-control" className={cn(activeTab !== 'source-control' && 'h-0 overflow-hidden')}><SourceControlPanel /></TabsContent>
+                <TabsContent value="settings" className={cn(activeTab !== 'settings' && 'h-0 overflow-hidden')}><SettingsPanel /></TabsContent>
             </div>
           </div>
 
           <main className="flex-1 flex flex-col min-w-0">
-             <TabsContent value="editor" className="h-full m-0">
+             <TabsContent value="editor" className={cn("flex-1 m-0", activeTab !== 'editor' && 'h-0 overflow-hidden')}>
                 <EditorPanel />
              </TabsContent>
+              {panels.filter(p => p.id !== 'editor').map(panel => (
+                <TabsContent key={panel.id} value={panel.id} className={cn("flex-1 m-0", activeTab !== panel.id && 'h-0 overflow-hidden')}>
+                  {/* This is a bit of a hack to make sure content is mounted for sidebar view but not fully rendered */}
+                </TabsContent>
+              ))}
           </main>
       </Tabs>
     </div>

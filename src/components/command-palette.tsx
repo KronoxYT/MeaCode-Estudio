@@ -23,11 +23,12 @@ import {
   CommandSeparator,
 } from '@/components/ui/command';
 import { MeaCoreLogo } from './code-canvas-logo';
+import { PanelId } from './ide-layout';
 
 interface CommandPaletteProps {
   open: boolean;
   setOpen: (open: boolean) => void;
-  setActiveTab: (tab: string) => void;
+  setActiveTab: (tab: PanelId) => void;
   setIsMeaCodeActive: (active: boolean) => void;
 }
 
