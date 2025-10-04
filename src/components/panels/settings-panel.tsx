@@ -4,7 +4,7 @@ import { useTheme } from 'next-themes';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Monitor, Moon, Sun } from 'lucide-react';
+import { Laptop, Monitor, Moon, Sun } from 'lucide-react';
 import {
   Select,
   SelectContent,
