@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useTheme } from 'next-themes';
 import {
@@ -19,16 +19,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Code, Terminal, GalleryVerticalEnd, Lightbulb } from 'lucide-react';
+import { Sparkles, Code, Terminal, GalleryVerticalEnd, Lightbulb, Loader2 } from 'lucide-react';
 import { aiPoweredIntelliSense } from '@/ai/flows/ai-powered-intellisense';
 import { Skeleton } from '../ui/skeleton';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Drawer, DrawerContent, DrawerTrigger, DrawerTitle, DrawerHeader } from '../ui/drawer';
 import { cn } from '@/lib/utils';
+import type { editor } from 'monaco-editor';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
-  loading: () => <Skeleton className="w-full h-full" />,
+  loading: () => <div className="flex h-full items-center justify-center bg-background">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>,
 });
 
 
@@ -117,6 +120,7 @@ function AiIntellisensePanel({ code, language }: { code: string; language: Langu
 export function EditorPanel() {
   const [language, setLanguage] = useState<Language>('javascript');
   const [code, setCode] = useState(initialCode.javascript);
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const isMobile = useIsMobile();
   const { theme } = useTheme();
 
@@ -130,9 +134,67 @@ export function EditorPanel() {
     setCode(value || '');
   }
 
-  const addComponent = (componentSnippet: string) => {
-    setCode(currentCode => currentCode + `\n${componentSnippet}\n`);
+  const handleEditorDidMount = (editorInstance: editor.IStandaloneCodeEditor) => {
+    editorRef.current = editorInstance;
+    editorInstance.focus();
   };
+
+  const addComponent = (componentSnippet: string) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    const selection = editor.getSelection();
+    if (selection) {
+      const id = { major: 1, minor: 1 };
+      const text = `\n${componentSnippet}\n`;
+      const op = {identifier: id, range: selection, text: text, forceMoveMarkers: true};
+      editor.executeEdits("my-source", [op]);
+    } else {
+        const lastLine = editor.getModel()?.getLineCount() || 1;
+        const lastCol = editor.getModel()?.getLineMaxColumn(lastLine) || 1;
+        const id = { major: 1, minor: 1 };
+        const text = `\n${componentSnippet}\n`;
+        const op = {identifier: id, range: new monaco.Selection(lastLine, lastCol, lastLine, lastCol), text: text, forceMoveMarkers: true};
+        editor.executeEdits("my-source", [op]);
+    }
+    
+    editor.focus();
+    // Switch to editor tab after adding component
+    const editorTabTrigger = document.querySelector('button[role="tab"][value="editor"]');
+    if (editorTabTrigger instanceof HTMLElement) {
+      editorTabTrigger.click();
+    }
+  };
+  
+  const editorOptions: editor.IStandaloneEditorConstructionOptions = {
+    fontSize: 14,
+    fontFamily: "'Source Code Pro', monospace",
+    minimap: { enabled: !isMobile },
+    scrollBeyondLastLine: false,
+    wordWrap: 'on',
+    automaticLayout: true,
+    tabSize: 2,
+    insertSpaces: true,
+    smoothScrolling: true,
+    cursorBlinking: 'smooth',
+    cursorSmoothCaretAnimation: 'on',
+    quickSuggestions: { other: true, comments: false, strings: false },
+    suggestOnTriggerCharacters: true,
+    acceptSuggestionOnCommitCharacter: true,
+    scrollbar: {
+      vertical: 'auto',
+      horizontal: 'auto',
+      useShadows: false,
+      verticalScrollbarSize: 8,
+      horizontalScrollbarSize: 8,
+    },
+    renderLineHighlight: 'line',
+    renderWhitespace: 'selection',
+    occurrencesHighlight: 'off',
+    mouseWheelZoom: false,
+    padding: { top: 8, bottom: 8 },
+  };
+
 
   const renderEditorContent = () => (
     <div className="flex-1 flex flex-col gap-2 overflow-hidden h-full relative">
@@ -143,13 +205,8 @@ export function EditorPanel() {
             theme={theme === 'dark' ? 'vs-dark' : 'light'}
             value={code}
             onChange={handleCodeChange}
-            options={{
-              minimap: { enabled: !isMobile },
-              fontSize: 14,
-              wordWrap: 'on',
-              scrollBeyondLastLine: false,
-              automaticLayout: true,
-            }}
+            onMount={handleEditorDidMount}
+            options={editorOptions}
           />
        </div>
       {isMobile ? (
