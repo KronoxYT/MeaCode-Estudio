@@ -18,17 +18,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
 import { Sparkles, Code, Terminal, GalleryVerticalEnd } from 'lucide-react';
 import { aiPoweredIntelliSense } from '@/ai/flows/ai-powered-intellisense';
 import { Skeleton } from '../ui/skeleton';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Drawer, DrawerContent, DrawerTrigger } from '../ui/drawer';
+import { Drawer, DrawerContent, DrawerTrigger, DrawerTitle } from '../ui/drawer';
 
 type Language = 'javascript' | 'python' | 'html';
 
@@ -142,6 +136,7 @@ export function EditorPanel() {
             </Button>
           </DrawerTrigger>
           <DrawerContent className="h-[60%]">
+            <DrawerTitle className="sr-only">AI IntelliSense</DrawerTitle>
             <div className="p-4 h-full">
               <AiIntellisensePanel code={code} language={language} />
             </div>
