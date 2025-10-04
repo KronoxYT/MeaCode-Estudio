@@ -47,10 +47,10 @@ const initialCode: Record<Language, string> = {
 };
 
 const components = [
-    { name: 'Button', description: 'A clickable button.' },
-    { name: 'Card', description: 'A container for content.' },
-    { name: 'Input', description: 'A text input field.' },
-    { name: 'Tabs', description: 'A set of tabs.' },
+    { name: 'Button', description: 'A clickable button.', snippet: '<Button>Click me</Button>' },
+    { name: 'Card', description: 'A container for content.', snippet: '<Card>\n  <CardHeader>\n    <CardTitle>Card Title</CardTitle>\n  </CardHeader>\n  <CardContent>\n    <p>Card content goes here.</p>\n  </CardContent>\n</Card>' },
+    { name: 'Input', description: 'A text input field.', snippet: '<Input placeholder="Email" />' },
+    { name: 'Tabs', description: 'A set of tabs.', snippet: '<Tabs defaultValue="account">\n  <TabsList>\n    <TabsTrigger value="account">Account</TabsTrigger>\n    <TabsTrigger value="password">Password</TabsTrigger>\n  </TabsList>\n  <TabsContent value="account">Account content.</TabsContent>\n  <TabsContent value="password">Password content.</TabsContent>\n</Tabs>' },
 ];
 
 function AiIntellisensePanel({ code, language }: { code: string; language: Language }) {
@@ -117,9 +117,8 @@ export function EditorPanel() {
     setCode(initialCode[value]);
   };
   
-  const addComponent = (componentName: string) => {
-    const componentSnippet = `\n// TODO: Implement ${componentName} component\n`;
-    setCode(currentCode => currentCode + componentSnippet);
+  const addComponent = (componentSnippet: string) => {
+    setCode(currentCode => currentCode + `\n${componentSnippet}\n`);
   };
 
   const renderEditorContent = () => (
@@ -204,7 +203,7 @@ export function EditorPanel() {
                     <p className="text-muted-foreground mb-4">Click to add a new component to your code.</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {components.map(component => (
-                        <Button key={component.name} variant="outline" onClick={() => addComponent(component.name)} className="h-auto p-4 flex flex-col items-start text-left">
+                        <Button key={component.name} variant="outline" onClick={() => addComponent(component.snippet)} className="h-auto p-4 flex flex-col items-start text-left">
                             <span className="font-semibold">{component.name}</span>
                             <p className="mt-1 text-xs text-muted-foreground">{component.description}</p>
                         </Button>
