@@ -236,48 +236,48 @@ export function EditorPanel() {
 
   return (
     <div className="flex flex-col h-full bg-muted/40">
-       <Tabs value={activeWorkspaceTab} onValueChange={setActiveWorkspaceTab} className="flex-1 flex flex-col min-h-0">
-        <div className="flex items-center justify-between border-b bg-background p-2">
-          <TabsList className="bg-muted">
-            <TabsTrigger value="editor" className="gap-2"><FileCode size={14}/> {isMobile ? '' : 'Editor'} </TabsTrigger>
-            <TabsTrigger value="console" className="gap-2"><Terminal size={14}/> {isMobile ? '' : 'Console'} </TabsTrigger>
-            <TabsTrigger value="preview" className="gap-2"><Eye size={14}/> {isMobile ? '' : 'Preview'} </TabsTrigger>
-            <TabsTrigger value="gallery" className="gap-2"><GalleryVerticalEnd size={14}/> {isMobile ? '' : 'Gallery'} </TabsTrigger>
-          </TabsList>
+      <div className="flex items-center justify-between border-b bg-background p-2">
+        <TabsList className="bg-muted">
+          <TabsTrigger value="editor" className="gap-2" onClick={() => setActiveWorkspaceTab('editor')}><FileCode size={14}/> {isMobile ? '' : 'Editor'} </TabsTrigger>
+          <TabsTrigger value="console" className="gap-2" onClick={() => setActiveWorkspaceTab('console')}><Terminal size={14}/> {isMobile ? '' : 'Console'} </TabsTrigger>
+          <TabsTrigger value="preview" className="gap-2" onClick={() => setActiveWorkspaceTab('preview')}><Eye size={14}/> {isMobile ? '' : 'Preview'} </TabsTrigger>
+          <TabsTrigger value="gallery" className="gap-2" onClick={() => setActiveWorkspaceTab('gallery')}><GalleryVerticalEnd size={14}/> {isMobile ? '' : 'Gallery'} </TabsTrigger>
+        </TabsList>
 
-          {activeWorkspaceTab === 'preview' && (
-            <div className="flex items-center gap-1">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={updatePreview}
-                disabled={isPreviewLoading}
-                className="h-8 gap-1.5"
-              >
-                <RefreshCw className={cn('h-3.5 w-3.5', isPreviewLoading && 'animate-spin')} />
-                Refresh
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={openInNewTab}
-                className="h-8 gap-1.5"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                Open
-              </Button>
-            </div>
-          )}
-        </div>
-        
-        <FileTabs 
+        {activeWorkspaceTab === 'preview' && (
+          <div className="flex items-center gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={updatePreview}
+              disabled={isPreviewLoading}
+              className="h-8 gap-1.5"
+            >
+              <RefreshCw className={cn('h-3.5 w-3.5', isPreviewLoading && 'animate-spin')} />
+              Refresh
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={openInNewTab}
+              className="h-8 gap-1.5"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              Open
+            </Button>
+          </div>
+        )}
+      </div>
+
+       <FileTabs 
           files={files}
           activeFileId={activeFileId}
           onFileSelect={setActiveFile}
           onFileClose={closeFile}
           onNewFile={handleNewFile}
         />
-        
+       
+       <Tabs value={activeWorkspaceTab} onValueChange={setActiveWorkspaceTab} className="flex-1 flex flex-col min-h-0">
         <TabsContent value="editor" className="flex-1 m-0 p-2 overflow-hidden flex flex-col">
           {renderEditorContent()}
            {isMobile && <KeyboardBar language={activeFile.language} onInsert={handleInsertText} />}
@@ -286,7 +286,7 @@ export function EditorPanel() {
             <ConsolePanel file={activeFile} />
         </TabsContent>
         <TabsContent value="preview" className="flex-1 m-0 overflow-hidden">
-          <PreviewPanel file={activeFile} />
+          <PreviewPanel file={activeFile} onUpdate={updatePreview} />
         </TabsContent>
         <TabsContent value="gallery" className="flex-1 m-0 p-2 overflow-hidden">
             <Card className="h-full">
@@ -310,3 +310,5 @@ export function EditorPanel() {
     </div>
   );
 }
+
+    
