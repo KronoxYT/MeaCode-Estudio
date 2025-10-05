@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useTheme } from 'next-themes';
 import {
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Code, Terminal, GalleryVerticalEnd, Lightbulb, Loader2, Eye, FileCode } from 'lucide-react';
+import { Sparkles, Code, Terminal, GalleryVerticalEnd, Lightbulb, Loader2, Eye, FileCode, RefreshCw, ExternalLink } from 'lucide-react';
 import { aiPoweredIntelliSense } from '@/ai/flows/ai-powered-intellisense';
 import { Skeleton } from '../ui/skeleton';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils';
 import type { editor } from 'monaco-editor';
 import { KeyboardBar } from '../editor/keyboard-bar';
 import { ConsolePanel } from './console-panel';
-import { PreviewPanel } from './preview-panel';
+import { PreviewPanel, usePreview } from './preview-panel';
 import { useEditor } from '@/contexts/editor-context';
 import { FileTabs } from '../editor/file-tabs';
 
@@ -109,6 +109,8 @@ export function EditorPanel() {
     setActiveFile,
     updateFileContent
   } = useEditor();
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState('editor');
+  const { updatePreview, openInNewTab, isLoading } = usePreview(activeFile);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const isMobile = useIsMobile();
   const { theme } = useTheme();
@@ -238,7 +240,7 @@ export function EditorPanel() {
 
   return (
     <div className="flex flex-col h-full bg-muted/40">
-      <Tabs defaultValue="editor" className="flex-1 flex flex-col min-h-0">
+       <Tabs value={activeWorkspaceTab} onValueChange={setActiveWorkspaceTab} className="flex-1 flex flex-col min-h-0">
         <div className="flex items-center justify-between border-b bg-background p-2">
           <TabsList className="bg-muted">
             <TabsTrigger value="editor" className="gap-2"><FileCode size={14}/> {isMobile ? '' : 'Editor'} </TabsTrigger>
@@ -246,7 +248,32 @@ export function EditorPanel() {
             <TabsTrigger value="preview" className="gap-2"><Eye size={14}/> {isMobile ? '' : 'Preview'} </TabsTrigger>
             <TabsTrigger value="gallery" className="gap-2"><GalleryVerticalEnd size={14}/> {isMobile ? '' : 'Gallery'} </TabsTrigger>
           </TabsList>
+
+          {activeWorkspaceTab === 'preview' && (
+            <div className="flex items-center gap-1">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={updatePreview}
+                disabled={isLoading}
+                className="h-8 gap-1.5"
+              >
+                <RefreshCw className={cn('h-3.5 w-3.5', isLoading && 'animate-spin')} />
+                Refresh
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={openInNewTab}
+                className="h-8 gap-1.5"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Open
+              </Button>
+            </div>
+          )}
         </div>
+
         <FileTabs 
           files={files}
           activeFileId={activeFileId}
@@ -254,6 +281,7 @@ export function EditorPanel() {
           onFileClose={closeFile}
           onNewFile={handleNewFile}
         />
+        
         <TabsContent value="editor" className="flex-1 m-0 p-2 overflow-hidden flex flex-col">
           <div className={cn("flex gap-2 flex-1 min-h-0", isMobile ? "flex-col" : "flex-row")}>
              {renderEditorContent()}
@@ -264,7 +292,7 @@ export function EditorPanel() {
             <ConsolePanel file={activeFile} />
         </TabsContent>
         <TabsContent value="preview" className="flex-1 m-0 overflow-hidden">
-          <PreviewPanel file={activeFile} />
+          <PreviewPanel file={activeFile} onUpdate={updatePreview} />
         </TabsContent>
         <TabsContent value="gallery" className="flex-1 m-0 p-2 overflow-hidden">
             <Card className="h-full">

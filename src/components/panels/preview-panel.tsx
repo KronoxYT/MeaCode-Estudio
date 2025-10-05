@@ -1,46 +1,28 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { RefreshCw, ExternalLink } from 'lucide-react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { useEditor, type FileTab } from '@/contexts/editor-context';
 
 interface PreviewPanelProps {
     file: FileTab;
+    onUpdate: () => void;
 }
 
-export function PreviewPanel({ file }: PreviewPanelProps) {
+export function usePreview(file: FileTab | null) {
   const { setPreviewError } = useEditor();
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [previewContent, setPreviewContent] = useState('');
+  
   useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-
-    const handleIframeError = (event: ErrorEvent) => {
-        setPreviewError(event.message);
-    };
-
-    const contentWindow = iframe.contentWindow;
-    contentWindow?.addEventListener('error', handleIframeError);
-
-    return () => {
-        contentWindow?.removeEventListener('error', handleIframeError);
-    };
-
-  }, [iframeRef, setPreviewError]);
-
-
-  useEffect(() => {
-    if (file.language === 'html') {
+    if (file?.language === 'html') {
       updatePreview();
     }
-  }, [file.content, file.language]);
+  }, [file?.content, file?.language]);
 
-  const updatePreview = () => {
-    if (!iframeRef.current) return;
+
+  const updatePreview = useCallback(() => {
+    if (!file || file.language !== 'html') return;
 
     setIsLoading(true);
     setPreviewError(null);
@@ -74,21 +56,92 @@ export function PreviewPanel({ file }: PreviewPanelProps) {
       </html>
     `;
 
-    const iframeDoc = iframeRef.current.contentDocument;
-    if (iframeDoc) {
-      iframeDoc.open();
-      iframeDoc.write(fullHTML);
-      iframeDoc.close();
-    }
-
+    setPreviewContent(fullHTML);
     setTimeout(() => setIsLoading(false), 300);
-  };
+  }, [file, setPreviewError]);
 
-  const openInNewTab = () => {
+  const openInNewTab = useCallback(() => {
+    if (!file) return;
     const blob = new Blob([file.content], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
-  };
+  }, [file]);
+
+  return { updatePreview, openInNewTab, isLoading, previewContent };
+}
+
+
+export function PreviewPanel({ file, onUpdate }: PreviewPanelProps) {
+  const { setPreviewError } = useEditor();
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    onUpdate();
+  }, [file.content, onUpdate]);
+
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const handleIframeError = (event: ErrorEvent) => {
+        setPreviewError(event.message);
+    };
+
+    const contentWindow = iframe.contentWindow;
+    contentWindow?.addEventListener('error', handleIframeError);
+
+    return () => {
+        contentWindow?.removeEventListener('error', handleIframeError);
+    };
+
+  }, [iframeRef, setPreviewError]);
+
+
+  const updateIframeContent = (content: string) => {
+     if (iframeRef.current) {
+        const iframeDoc = iframeRef.current.contentDocument;
+        if (iframeDoc) {
+            iframeDoc.open();
+            iframeDoc.write(content);
+            iframeDoc.close();
+        }
+     }
+  }
+
+  useEffect(() => {
+    if (file.language === 'html') {
+      const fullHTML = `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          body {
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 1rem;
+            background-color: white;
+          }
+          .dark body {
+             background-color: #020817; /* Tailwind dark bg */
+             color: #fafafa;
+          }
+        </style>
+      </head>
+      <body class="${document.documentElement.classList.contains('dark') ? 'dark' : ''}">
+        ${file.content}
+      </body>
+      </html>
+    `;
+      updateIframeContent(fullHTML)
+    }
+  }, [file.content, file.language]);
+
 
   if (file.language !== 'html') {
     return (
@@ -108,31 +161,6 @@ export function PreviewPanel({ file }: PreviewPanelProps) {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Toolbar */}
-      <div className="flex items-center justify-end border-b px-3 py-2 bg-muted/50">
-        <div className="flex items-center gap-1">
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={updatePreview}
-            disabled={isLoading}
-            className="h-8 gap-1.5"
-          >
-            <RefreshCw className={cn('h-3.5 w-3.5', isLoading && 'animate-spin')} />
-            Refresh
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={openInNewTab}
-            className="h-8 gap-1.5"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            Open
-          </Button>
-        </div>
-      </div>
-
       {/* Preview Area */}
       <div className="flex-1 overflow-auto bg-white dark:bg-gray-900 p-4">
         <div
