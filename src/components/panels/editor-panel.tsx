@@ -193,7 +193,7 @@ export function EditorPanel() {
   }
 
   const renderEditorContent = () => (
-    <div className={cn("flex gap-2 flex-1 min-h-0", isMobile ? "flex-col" : "flex-row")}>
+    <div className={cn("flex gap-2 h-full", isMobile ? "flex-col" : "flex-row")}>
        <div className="flex-1 h-full font-code text-base resize-none rounded-lg bg-background overflow-hidden border">
          <MonacoEditor
             key={activeFile.id}
@@ -236,15 +236,14 @@ export function EditorPanel() {
 
   return (
     <div className="flex flex-col h-full bg-muted/40">
-      <div className="flex items-center justify-between border-b bg-background p-2">
+       <div className="flex items-center justify-between border-b bg-background p-2">
         <TabsList className="bg-muted">
           <TabsTrigger value="editor" className="gap-2" onClick={() => setActiveWorkspaceTab('editor')}><FileCode size={14}/> {isMobile ? '' : 'Editor'} </TabsTrigger>
           <TabsTrigger value="console" className="gap-2" onClick={() => setActiveWorkspaceTab('console')}><Terminal size={14}/> {isMobile ? '' : 'Console'} </TabsTrigger>
           <TabsTrigger value="preview" className="gap-2" onClick={() => setActiveWorkspaceTab('preview')}><Eye size={14}/> {isMobile ? '' : 'Preview'} </TabsTrigger>
           <TabsTrigger value="gallery" className="gap-2" onClick={() => setActiveWorkspaceTab('gallery')}><GalleryVerticalEnd size={14}/> {isMobile ? '' : 'Gallery'} </TabsTrigger>
         </TabsList>
-
-        {activeWorkspaceTab === 'preview' && (
+         {activeWorkspaceTab === 'preview' && (
           <div className="flex items-center gap-1">
             <Button
               size="sm"
@@ -310,5 +309,3 @@ export function EditorPanel() {
     </div>
   );
 }
-
-    
