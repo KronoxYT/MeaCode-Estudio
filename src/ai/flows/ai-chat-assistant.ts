@@ -42,7 +42,7 @@ function buildSystemPrompt(context: any): string {
       .map((log: any) => log.content)
       .join('\n');
 
-    return `Eres MeaMind, un asistente de programación experto integrado en MeaCode Estudio, un IDE profesional.
+    return `Eres MeaMind, un asistente de programación experto integrado en MeaCode Estudio, un IDE profesional. Tu tarea es responder a la consulta del usuario basándote en el contexto que te proporciono.
 
 CONTEXTO DEL PROYECTO:
 - Archivo actual: ${context.currentFile?.name}
@@ -90,19 +90,12 @@ const aiChatAssistantFlow = ai.defineFlow(
 
     const parsedContext = JSON.parse(context);
     const systemPrompt = buildSystemPrompt(parsedContext);
-
-    // We define the prompt dynamically inside the flow to inject the system prompt
-    const dynamicPrompt = ai.definePrompt({
-        name: 'dynamicAiChatAssistantPrompt',
-        system: systemPrompt,
-        input: { schema: z.string() },
-        output: { schema: AIChatAssistantOutputSchema },
-        prompt: `Basado en el contexto provisto en el system prompt, responde a la siguiente consulta del usuario. Sé conciso y útil.
-
-        User Query: {{input}}`
-    });
     
-    const {output} = await dynamicPrompt(query);
-    return output!;
+    const {text} = await ai.generate({
+        system: systemPrompt,
+        prompt: query
+    });
+
+    return { response: text };
   }
 );
