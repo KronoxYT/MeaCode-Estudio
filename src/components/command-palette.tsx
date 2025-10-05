@@ -23,17 +23,17 @@ import {
   CommandSeparator,
 } from '@/components/ui/command';
 import { DialogTitle } from '@/components/ui/dialog';
-import { CodeCanvasLogo } from './code-canvas-logo';
+import { MeaCodeLogo } from './mea-code-logo';
 import { PanelId } from './ide-layout';
 
 interface CommandPaletteProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   setActiveTab: (tab: PanelId) => void;
-  setIsCodeCanvasActive: (active: boolean) => void;
+  setIsMeaCodeActive: (active: boolean) => void;
 }
 
-export function CommandPalette({ open, setOpen, setActiveTab, setIsCodeCanvasActive }: CommandPaletteProps) {
+export function CommandPalette({ open, setOpen, setActiveTab, setIsMeaCodeActive }: CommandPaletteProps) {
   const { setTheme } = useTheme();
 
   React.useEffect(() => {
@@ -76,9 +76,9 @@ export function CommandPalette({ open, setOpen, setActiveTab, setIsCodeCanvasAct
             <GitBranch className="mr-2 h-4 w-4" />
             <span>Source Control</span>
           </CommandItem>
-           <CommandItem onSelect={() => runCommand(() => setIsCodeCanvasActive(true))}>
-            <CodeCanvasLogo className="mr-2 h-4 w-4" />
-            <span>Engage CodeCanvas AI</span>
+           <CommandItem onSelect={() => runCommand(() => setIsMeaCodeActive(true))}>
+            <MeaCodeLogo className="mr-2 h-4 w-4" />
+            <span>Engage MeaCode</span>
           </CommandItem>
         </CommandGroup>
         <CommandSeparator />

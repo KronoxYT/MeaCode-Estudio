@@ -7,22 +7,22 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { CodeCanvasLogo } from '../code-canvas-logo';
+import { MeaCodeLogo } from '../mea-code-logo';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
-interface CodeCanvasPanelProps {
+interface MeaCodePanelProps {
   onClose: () => void;
 }
 
-export function CodeCanvasPanel({ onClose }: CodeCanvasPanelProps) {
+export function MeaCodePanel({ onClose }: MeaCodePanelProps) {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleEngage = () => {
     setIsLoading(true);
-    console.log('Engaging CodeCanvas with prompt:', prompt);
+    console.log('Engaging MeaCode with prompt:', prompt);
     // Simulate AI processing
     setTimeout(() => {
       setIsLoading(false);
@@ -40,13 +40,13 @@ export function CodeCanvasPanel({ onClose }: CodeCanvasPanelProps) {
                 size="icon"
                 className="p-2 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
                 onClick={onClose}
-                aria-label="Exit CodeCanvas Mode"
+                aria-label="Exit MeaCode Mode"
               >
-                <CodeCanvasLogo className="size-6" />
+                <MeaCodeLogo className="size-6" />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right" sideOffset={5}>
-              Exit CodeCanvas AI
+              Exit MeaCode
             </TooltipContent>
           </Tooltip>
         </aside>
@@ -57,12 +57,12 @@ export function CodeCanvasPanel({ onClose }: CodeCanvasPanelProps) {
         <header className="flex items-center justify-between border-b p-4">
           <div className="flex items-center gap-2">
             <Sparkles className="text-primary size-6" />
-            <h1 className="text-xl font-semibold font-headline">CodeCanvas AI</h1>
+            <h1 className="text-xl font-semibold font-headline">MeaCode</h1>
           </div>
         </header>
         <div className="flex-1 flex-col gap-4 overflow-y-auto p-4 md:flex">
           <p className="text-sm text-muted-foreground">
-            Describe tus requisitos. CodeCanvas orquestará autónomamente las herramientas para entregar una solución.
+            Describe tus requisitos. MeaCode orquestará autónomamente las herramientas para entregar una solución.
           </p>
           <Textarea
             value={prompt}
@@ -80,7 +80,7 @@ export function CodeCanvasPanel({ onClose }: CodeCanvasPanelProps) {
                 Ejecutando...
               </>
             ) : (
-              'Engage CodeCanvas AI'
+              'Engage MeaCode'
             )}
           </Button>
         </div>
@@ -112,7 +112,7 @@ export function CodeCanvasPanel({ onClose }: CodeCanvasPanelProps) {
                 </CardHeader>
                 <CardContent>
                   <ScrollArea className="h-96 font-mono text-xs bg-muted p-2 rounded-md md:h-[60vh]">
-                    <p>[{new Date().toLocaleTimeString()}] CodeCanvas inicializado.</p>
+                    <p>[{new Date().toLocaleTimeString()}] MeaCode inicializado.</p>
                     <p>[{new Date().toLocaleTimeString()}] Esperando prompt...</p>
                     {isLoading && <p>[{new Date().toLocaleTimeString()}] Procesando solicitud: "{prompt}"</p>}
                   </ScrollArea>

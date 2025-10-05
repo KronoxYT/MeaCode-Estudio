@@ -42,7 +42,7 @@ function buildSystemPrompt(context: any): string {
       .map((log: any) => log.content)
       .join('\n');
 
-    return `Eres un asistente de programación experto integrado en CodeCanvas AI, un IDE profesional.
+    return `Eres un asistente de programación experto integrado en MeaCode Estudio, un IDE profesional.
 
 CONTEXTO DEL PROYECTO:
 - Archivo actual: ${context.currentFile?.name}

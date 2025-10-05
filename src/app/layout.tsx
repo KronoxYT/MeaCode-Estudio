@@ -5,8 +5,8 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { EditorProvider } from '@/contexts/editor-context';
 
 export const metadata: Metadata = {
-  title: 'CodeCanvas AI',
-  description: 'An AI-powered IDE for modern developers.',
+  title: 'MeaCode Estudio',
+  description: 'Un IDE potenciado por IA para desarrolladores modernos.',
 };
 
 export default function RootLayout({
