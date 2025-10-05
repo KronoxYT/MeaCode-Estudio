@@ -110,7 +110,7 @@ export function EditorPanel() {
     updateFileContent
   } = useEditor();
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState('editor');
-  const { updatePreview, openInNewTab, isLoading } = usePreview(activeFile);
+  const { updatePreview, openInNewTab, isLoading: isPreviewLoading } = usePreview(activeFile);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const isMobile = useIsMobile();
   const { theme } = useTheme();
@@ -136,11 +136,7 @@ export function EditorPanel() {
 
   const addComponent = (componentSnippet: string) => {
     handleInsertText(componentSnippet);
-    // Find and click the editor tab trigger
-    const editorTabTrigger = document.querySelector('button[role="tab"][value="editor"]');
-    if (editorTabTrigger instanceof HTMLElement) {
-      editorTabTrigger.click();
-    }
+    setActiveWorkspaceTab('editor');
   };
 
   const handleNewFile = () => {
@@ -197,7 +193,7 @@ export function EditorPanel() {
   }
 
   const renderEditorContent = () => (
-    <div className="flex-1 flex flex-col gap-2 overflow-hidden h-full relative">
+    <div className={cn("flex gap-2 flex-1 min-h-0", isMobile ? "flex-col" : "flex-row")}>
        <div className="flex-1 h-full font-code text-base resize-none rounded-lg bg-background overflow-hidden border">
          <MonacoEditor
             key={activeFile.id}
@@ -255,10 +251,10 @@ export function EditorPanel() {
                 size="sm"
                 variant="ghost"
                 onClick={updatePreview}
-                disabled={isLoading}
+                disabled={isPreviewLoading}
                 className="h-8 gap-1.5"
               >
-                <RefreshCw className={cn('h-3.5 w-3.5', isLoading && 'animate-spin')} />
+                <RefreshCw className={cn('h-3.5 w-3.5', isPreviewLoading && 'animate-spin')} />
                 Refresh
               </Button>
               <Button
@@ -273,7 +269,7 @@ export function EditorPanel() {
             </div>
           )}
         </div>
-
+        
         <FileTabs 
           files={files}
           activeFileId={activeFileId}
@@ -283,16 +279,14 @@ export function EditorPanel() {
         />
         
         <TabsContent value="editor" className="flex-1 m-0 p-2 overflow-hidden flex flex-col">
-          <div className={cn("flex gap-2 flex-1 min-h-0", isMobile ? "flex-col" : "flex-row")}>
-             {renderEditorContent()}
-          </div>
+          {renderEditorContent()}
            {isMobile && <KeyboardBar language={activeFile.language} onInsert={handleInsertText} />}
         </TabsContent>
         <TabsContent value="console" className="flex-1 m-0 overflow-hidden">
             <ConsolePanel file={activeFile} />
         </TabsContent>
         <TabsContent value="preview" className="flex-1 m-0 overflow-hidden">
-          <PreviewPanel file={activeFile} onUpdate={updatePreview} />
+          <PreviewPanel file={activeFile} />
         </TabsContent>
         <TabsContent value="gallery" className="flex-1 m-0 p-2 overflow-hidden">
             <Card className="h-full">
