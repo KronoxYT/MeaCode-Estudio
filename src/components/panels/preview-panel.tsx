@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, ExternalLink, Smartphone, Monitor } from 'lucide-react';
+import { RefreshCw, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEditor, type FileTab } from '@/contexts/editor-context';
 
@@ -14,7 +14,6 @@ export function PreviewPanel({ file }: PreviewPanelProps) {
   const { setPreviewError } = useEditor();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
 
   useEffect(() => {
     const iframe = iframeRef.current;
@@ -110,26 +109,7 @@ export function PreviewPanel({ file }: PreviewPanelProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Toolbar */}
-      <div className="flex items-center justify-between border-b px-3 py-2 bg-muted/50">
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant={viewMode === 'desktop' ? 'default' : 'ghost'}
-            onClick={() => setViewMode('desktop')}
-            className="h-8 w-8 p-0"
-          >
-            <Monitor className="h-4 w-4" />
-          </Button>
-          <Button
-            size="sm"
-            variant={viewMode === 'mobile' ? 'default' : 'ghost'}
-            onClick={() => setViewMode('mobile')}
-            className="h-8 w-8 p-0"
-          >
-            <Smartphone className="h-4 w-4" />
-          </Button>
-        </div>
-
+      <div className="flex items-center justify-end border-b px-3 py-2 bg-muted/50">
         <div className="flex items-center gap-1">
           <Button
             size="sm"
@@ -156,17 +136,11 @@ export function PreviewPanel({ file }: PreviewPanelProps) {
       {/* Preview Area */}
       <div className="flex-1 overflow-auto bg-white dark:bg-gray-900 p-4">
         <div
-          className={cn(
-            'mx-auto h-full transition-all duration-300',
-            viewMode === 'mobile' ? 'max-w-[375px]' : 'w-full'
-          )}
+          className='mx-auto h-full transition-all duration-300 max-w-[375px]'
         >
           <iframe
             ref={iframeRef}
-            className={cn(
-              'w-full h-full border-0 bg-white dark:bg-gray-950 rounded-lg',
-              viewMode === 'mobile' && 'shadow-xl'
-            )}
+            className='w-full h-full border-0 bg-white dark:bg-gray-950 rounded-lg shadow-xl'
             title="Preview"
             sandbox="allow-scripts allow-same-origin"
           />
