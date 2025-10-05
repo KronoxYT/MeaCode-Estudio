@@ -35,9 +35,9 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
 
 const components = [
     { name: 'Button', description: 'A clickable button.', snippet: '<Button>Click me</Button>' },
-    { name: 'Card', description: 'A container for content.', snippet: '<Card>\n  <CardHeader>\n    <CardTitle>Card Title</CardTitle>\n  </CardHeader>\n  <CardContent>\n    <p>Card content goes here.</p>\n  </CardContent>\n</Card>' },
+    { name: 'Card', description: 'A container for content.', snippet: '<Card>\\n  <CardHeader>\\n    <CardTitle>Card Title</CardTitle>\\n  </CardHeader>\\n  <CardContent>\\n    <p>Card content goes here.</p>\\n  </CardContent>\\n</Card>' },
     { name: 'Input', description: 'A text input field.', snippet: '<Input placeholder="Email" />' },
-    { name: 'Tabs', description: 'A set of tabs.', snippet: '<Tabs defaultValue="account">\n  <TabsList>\n    <TabsTrigger value="account">Account</TabsTrigger>\n    <TabsTrigger value="password">Password</TabsTrigger>\n  </TabsList>\n  <TabsContent value="account">Account content.</TabsContent>\n  <TabsContent value="password">Password content.</TabsContent>\n</Tabs>' },
+    { name: 'Tabs', description: 'A set of tabs.', snippet: '<Tabs defaultValue="account">\\n  <TabsList>\\n    <TabsTrigger value="account">Account</TabsTrigger>\\n    <TabsTrigger value="password">Password</TabsTrigger>\\n  </TabsList>\\n  <TabsContent value="account">Account content.</TabsContent>\\n  <TabsContent value="password">Password content.</TabsContent>\\n</Tabs>' },
 ];
 
 function AiIntellisensePanel() {
@@ -238,13 +238,6 @@ export function EditorPanel() {
 
   return (
     <div className="flex flex-col h-full bg-muted/40">
-      <FileTabs 
-        files={files}
-        activeFileId={activeFileId}
-        onFileSelect={setActiveFile}
-        onFileClose={closeFile}
-        onNewFile={handleNewFile}
-      />
       <Tabs defaultValue="editor" className="flex-1 flex flex-col min-h-0">
         <div className="flex items-center justify-between border-b bg-background p-2">
           <TabsList className="bg-muted">
@@ -254,6 +247,13 @@ export function EditorPanel() {
             <TabsTrigger value="gallery" className="gap-2"><GalleryVerticalEnd size={14}/> {isMobile ? '' : 'Gallery'} </TabsTrigger>
           </TabsList>
         </div>
+        <FileTabs 
+          files={files}
+          activeFileId={activeFileId}
+          onFileSelect={setActiveFile}
+          onFileClose={closeFile}
+          onNewFile={handleNewFile}
+        />
         <TabsContent value="editor" className="flex-1 m-0 p-2 overflow-hidden flex flex-col">
           <div className={cn("flex gap-2 flex-1 min-h-0", isMobile ? "flex-col" : "flex-row")}>
              {renderEditorContent()}
