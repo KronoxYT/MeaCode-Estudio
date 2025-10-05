@@ -67,11 +67,18 @@ export function FileTabs({
               const isActive = file.id === activeFileId;
               
               return (
-                <button
+                <div
                   key={file.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => onFileSelect(file.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      onFileSelect(file.id);
+                    }
+                  }}
                   className={cn(
-                    'group relative flex items-center gap-2 px-4 py-2.5 border-r transition-colors min-w-[120px] max-w-[180px]',
+                    'group relative flex items-center gap-2 px-4 py-2.5 border-r transition-colors min-w-[120px] max-w-[180px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:z-10',
                     isActive
                       ? 'bg-background text-foreground'
                       : 'bg-muted/50 text-muted-foreground hover:bg-muted'
@@ -105,10 +112,11 @@ export function FileTabs({
                       'opacity-0 group-hover:opacity-100 transition-opacity',
                       'hover:bg-background/50 rounded p-0.5'
                     )}
+                    aria-label={`Close ${file.name}`}
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
-                </button>
+                </div>
               );
             })}
           </div>
