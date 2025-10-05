@@ -1,7 +1,7 @@
 'use server';
 
 /**
- * @fileOverview Implements an AI chat assistant for answering coding questions and generating code snippets.
+ * @fileOverview Implements MeaMind, the AI chat assistant for answering coding questions and generating code snippets.
  *
  * - aiChatAssistant - A function that handles the AI chat assistant process.
  * - AIChatAssistantInput - The input type for the aiChatAssistant function.
@@ -42,7 +42,7 @@ function buildSystemPrompt(context: any): string {
       .map((log: any) => log.content)
       .join('\n');
 
-    return `Eres un asistente de programación experto integrado en MeaCode Estudio, un IDE profesional.
+    return `Eres MeaMind, un asistente de programación experto integrado en MeaCode Estudio, un IDE profesional.
 
 CONTEXTO DEL PROYECTO:
 - Archivo actual: ${context.currentFile?.name}

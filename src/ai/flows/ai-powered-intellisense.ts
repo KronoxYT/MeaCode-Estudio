@@ -1,4 +1,4 @@
-// AI-Powered IntelliSense
+// MeaMind IntelliSense
 'use server';
 
 /**

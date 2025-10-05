@@ -215,7 +215,7 @@ export function AIChatPanel() {
                 <Sparkles className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-sm">AI Copilot</h3>
+                <h3 className="font-semibold text-sm">MeaMind</h3>
               </div>
             </div>
 
@@ -273,7 +273,7 @@ export function AIChatPanel() {
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                 <Sparkles className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="font-semibold mb-2">Tu copiloto está listo</h3>
+              <h3 className="font-semibold mb-2">MeaMind está listo</h3>
               <p className="text-sm text-muted-foreground mb-1">
                 Tengo contexto completo de tu código
               </p>

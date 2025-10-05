@@ -69,7 +69,7 @@ function AiIntellisensePanel() {
     <Card className="flex flex-col rounded-lg h-full border-0 shadow-none bg-transparent">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
-          <Sparkles className="text-primary" /> AI IntelliSense
+          <Sparkles className="text-primary" /> MeaMind IntelliSense
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col gap-4 overflow-hidden">
@@ -186,7 +186,7 @@ export function EditorPanel() {
           </DrawerTrigger>
           <DrawerContent>
              <DrawerHeader>
-                <DrawerTitle className="sr-only">AI IntelliSense</DrawerTitle>
+                <DrawerTitle className="sr-only">MeaMind IntelliSense</DrawerTitle>
              </DrawerHeader>
             <div className="p-4 pt-0 h-full">
               <AiIntellisensePanel />
