@@ -23,6 +23,7 @@ import { KeyboardBar } from '../editor/keyboard-bar';
 import { ConsolePanel } from './console-panel';
 import { PreviewPanel } from './preview-panel';
 import { useEditor } from '@/contexts/editor-context';
+import { FileTabs } from '../editor/file-tabs';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
@@ -40,20 +41,22 @@ const components = [
 ];
 
 function AiIntellisensePanel() {
-  const { code, language, getContextForAI } = useEditor();
+  const { activeFile, getContextForAI } = useEditor();
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGetSuggestions = async () => {
+    if (!activeFile) return;
+
     setIsLoading(true);
     setSuggestions([]);
     setError('');
     try {
       // The flow now receives the full context
       const result = await aiPoweredIntelliSense({
-        codeSnippet: code,
-        programmingLanguage: language,
+        codeSnippet: activeFile.content,
+        programmingLanguage: activeFile.language,
         context: getContextForAI(),
       });
       setSuggestions(result.completionSuggestions);
@@ -73,7 +76,7 @@ function AiIntellisensePanel() {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col gap-4 overflow-hidden">
-        <Button onClick={handleGetSuggestions} disabled={isLoading} className="w-full">
+        <Button onClick={handleGetSuggestions} disabled={isLoading || !activeFile} className="w-full">
           {isLoading ? 'Analyzing...' : 'Get AI Suggestions'}
         </Button>
         <div className="flex-1 flex flex-col gap-4 overflow-hidden">
@@ -97,7 +100,15 @@ function AiIntellisensePanel() {
 }
 
 export function EditorPanel() {
-  const { code, setCode, language } = useEditor();
+  const { 
+    files,
+    activeFileId,
+    activeFile,
+    createFile,
+    closeFile,
+    setActiveFile,
+    updateFileContent
+  } = useEditor();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const isMobile = useIsMobile();
   const { theme } = useTheme();
@@ -129,6 +140,21 @@ export function EditorPanel() {
       editorTabTrigger.click();
     }
   };
+
+  const handleNewFile = () => {
+    const fileName = prompt('Nombre del archivo:', 'untitled.js');
+    if (!fileName) return;
+
+    const ext = fileName.split('.').pop()?.toLowerCase();
+    let language: 'javascript' | 'python' | 'html' | 'css' | 'json' = 'javascript';
+    
+    if (ext === 'py') language = 'python';
+    else if (ext === 'html') language = 'html';
+    else if (ext === 'css') language = 'css';
+    else if (ext === 'json') language = 'json';
+    
+    createFile(fileName, language);
+  };
   
   const editorOptions: editor.IStandaloneEditorConstructionOptions = {
     fontSize: 14,
@@ -159,16 +185,25 @@ export function EditorPanel() {
     padding: { top: 8, bottom: 8 },
   };
 
+  if (!activeFile) {
+    return (
+        <div className="flex h-full flex-col items-center justify-center bg-muted/40">
+            <p className="text-muted-foreground">No file open.</p>
+            <Button onClick={handleNewFile} className="mt-4">Create New File</Button>
+        </div>
+    )
+  }
 
   const renderEditorContent = () => (
     <div className="flex-1 flex flex-col gap-2 overflow-hidden h-full relative">
        <div className="flex-1 h-full font-code text-base resize-none rounded-lg bg-background overflow-hidden border">
          <MonacoEditor
+            key={activeFile.id}
             height="100%"
-            language={language}
+            language={activeFile.language}
             theme={theme === 'dark' ? 'vs-dark' : 'light'}
-            value={code}
-            onChange={(value) => setCode(value || '')}
+            value={activeFile.content}
+            onChange={(value) => updateFileContent(activeFile.id, value || '')}
             onMount={handleEditorDidMount}
             options={editorOptions}
           />
@@ -203,26 +238,33 @@ export function EditorPanel() {
 
   return (
     <div className="flex flex-col h-full bg-muted/40">
-      <Tabs defaultValue="editor" className="flex-1 flex flex-col">
+      <FileTabs 
+        files={files}
+        activeFileId={activeFileId}
+        onFileSelect={setActiveFile}
+        onFileClose={closeFile}
+        onNewFile={handleNewFile}
+      />
+      <Tabs defaultValue="editor" className="flex-1 flex flex-col min-h-0">
         <div className="flex items-center justify-between border-b bg-background p-2">
           <TabsList className="bg-muted">
-            <TabsTrigger value="editor"><FileCode size={14}/></TabsTrigger>
-            <TabsTrigger value="console"><Terminal size={14}/></TabsTrigger>
-            <TabsTrigger value="preview"><Eye size={14}/></TabsTrigger>
-            <TabsTrigger value="gallery"><GalleryVerticalEnd size={14}/></TabsTrigger>
+            <TabsTrigger value="editor" className="gap-2"><FileCode size={14}/> {isMobile ? '' : 'Editor'} </TabsTrigger>
+            <TabsTrigger value="console" className="gap-2"><Terminal size={14}/> {isMobile ? '' : 'Console'} </TabsTrigger>
+            <TabsTrigger value="preview" className="gap-2"><Eye size={14}/> {isMobile ? '' : 'Preview'} </TabsTrigger>
+            <TabsTrigger value="gallery" className="gap-2"><GalleryVerticalEnd size={14}/> {isMobile ? '' : 'Gallery'} </TabsTrigger>
           </TabsList>
         </div>
         <TabsContent value="editor" className="flex-1 m-0 p-2 overflow-hidden flex flex-col">
           <div className={cn("flex gap-2 flex-1 min-h-0", isMobile ? "flex-col" : "flex-row")}>
              {renderEditorContent()}
           </div>
-           {isMobile && <KeyboardBar language={language} onInsert={handleInsertText} />}
+           {isMobile && <KeyboardBar language={activeFile.language} onInsert={handleInsertText} />}
         </TabsContent>
         <TabsContent value="console" className="flex-1 m-0 overflow-hidden">
-            <ConsolePanel />
+            <ConsolePanel file={activeFile} />
         </TabsContent>
         <TabsContent value="preview" className="flex-1 m-0 overflow-hidden">
-          <PreviewPanel />
+          <PreviewPanel file={activeFile} />
         </TabsContent>
         <TabsContent value="gallery" className="flex-1 m-0 p-2 overflow-hidden">
             <Card className="h-full">

@@ -4,16 +4,19 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, ExternalLink, Smartphone, Monitor } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useEditor } from '@/contexts/editor-context';
+import { useEditor, type FileTab } from '@/contexts/editor-context';
 
-export function PreviewPanel() {
-  const { code, language, setPreviewError } = useEditor();
+interface PreviewPanelProps {
+    file: FileTab;
+}
+
+export function PreviewPanel({ file }: PreviewPanelProps) {
+  const { setPreviewError } = useEditor();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
 
   useEffect(() => {
-    // Escuchar errores del iframe
     const iframe = iframeRef.current;
     if (!iframe) return;
 
@@ -21,20 +24,21 @@ export function PreviewPanel() {
         setPreviewError(event.message);
     };
 
-    iframe.contentWindow?.addEventListener('error', handleIframeError);
+    const contentWindow = iframe.contentWindow;
+    contentWindow?.addEventListener('error', handleIframeError);
 
     return () => {
-        iframe.contentWindow?.removeEventListener('error', handleIframeError);
+        contentWindow?.removeEventListener('error', handleIframeError);
     };
 
   }, [iframeRef, setPreviewError]);
 
 
   useEffect(() => {
-    if (language === 'html') {
+    if (file.language === 'html') {
       updatePreview();
     }
-  }, [code, language]);
+  }, [file.content, file.language]);
 
   const updatePreview = () => {
     if (!iframeRef.current) return;
@@ -66,7 +70,7 @@ export function PreviewPanel() {
         </style>
       </head>
       <body class="${document.documentElement.classList.contains('dark') ? 'dark' : ''}">
-        ${code}
+        ${file.content}
       </body>
       </html>
     `;
@@ -82,12 +86,12 @@ export function PreviewPanel() {
   };
 
   const openInNewTab = () => {
-    const blob = new Blob([code], { type: 'text/html' });
+    const blob = new Blob([file.content], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
   };
 
-  if (language !== 'html') {
+  if (file.language !== 'html') {
     return (
       <div className="flex h-full items-center justify-center bg-muted/20">
         <div className="text-center space-y-3">

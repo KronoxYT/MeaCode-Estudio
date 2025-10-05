@@ -5,15 +5,16 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Play, Trash2, Terminal, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useEditor, type ConsoleLog } from '@/contexts/editor-context';
+import { useEditor, type ConsoleLog, FileTab } from '@/contexts/editor-context';
 
 
 interface ConsolePanelProps {
   className?: string;
+  file: FileTab;
 }
 
-export function ConsolePanel({ className }: ConsolePanelProps) {
-  const { code, language, consoleLogs, addConsoleLog, clearConsoleLogs } = useEditor();
+export function ConsolePanel({ className, file }: ConsolePanelProps) {
+  const { consoleLogs, addConsoleLog, clearConsoleLogs } = useEditor();
   const [isRunning, setIsRunning] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -29,7 +30,7 @@ export function ConsolePanel({ className }: ConsolePanelProps) {
 
 
   const executeJavaScript = () => {
-    if (language !== 'javascript') {
+    if (file.language !== 'javascript') {
       const logEntry: ConsoleLog = {
         id: `${Date.now()}`,
         type: 'warn',
@@ -52,7 +53,7 @@ export function ConsolePanel({ className }: ConsolePanelProps) {
             info: (...args: any[]) => addConsoleLog({ id: `${Date.now()}-${Math.random()}`, type: 'info', content: args.map(String), timestamp: new Date() }),
           };
 
-          const func = new Function('console', code);
+          const func = new Function('console', file.content);
           func(customConsole);
 
           addConsoleLog({ id: `${Date.now()}`, type: 'info', content: ['✓ Code executed successfully'], timestamp: new Date() });
@@ -119,7 +120,7 @@ export function ConsolePanel({ className }: ConsolePanelProps) {
           <Button
             size="sm"
             onClick={executeJavaScript}
-            disabled={isRunning || (language !== 'javascript' && code.trim() === '')}
+            disabled={isRunning || (file.language !== 'javascript' && file.content.trim() === '')}
             className="h-8 gap-1.5"
           >
             {isRunning ? (
